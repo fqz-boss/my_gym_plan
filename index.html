@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PPL训练">
+<title>推拉腿训练计划</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F2F2F7;--card:#FFFFFF;--sep:rgba(60,60,67,0.1);
+  --text:#000000;--text2:#3C3C43;--text3:#8E8E93;
+  --blue:#007AFF;--green:#34C759;--orange:#FF9500;--red:#FF3B30;
+  --radius:12px;--safe-b:env(safe-area-inset-bottom,0px);
+}
+html{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",sans-serif;font-size:16px;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body{padding-bottom:calc(56px + var(--safe-b));min-height:100vh;min-height:100dvh}
+button{font-family:inherit;border:none;background:none;cursor:pointer;font-size:inherit}
+input{font-family:inherit;font-size:inherit;border:none;outline:none;background:none}
+
+/* Tab Bar */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;height:calc(56px + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(249,249,249,0.94);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:0.5px solid var(--sep);display:flex;z-index:100}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);transition:color .2s}
+.tab-item.active{color:var(--blue)}
+.tab-item svg{width:24px;height:24px;fill:currentColor}
+.tab-item span{font-size:10px;font-weight:500}
+
+/* Pages */
+.page{display:none;padding:0 16px 24px}
+.page.active{display:block}
+.page-title{font-size:34px;font-weight:700;letter-spacing:-0.5px;padding:60px 0 8px}
+.page-subtitle{font-size:13px;color:var(--text3);margin-bottom:20px}
+
+/* Day Selector */
+.day-selector{display:flex;gap:8px;margin-bottom:20px}
+.day-btn{flex:1;padding:10px 0;border-radius:10px;font-size:14px;font-weight:600;background:var(--card);color:var(--text2);text-align:center;transition:all .2s}
+.day-btn.active-push{background:var(--blue);color:#fff}
+.day-btn.active-pull{background:var(--green);color:#fff}
+.day-btn.active-leg{background:var(--orange);color:#fff}
+.day-btn:active{opacity:.6}
+
+/* Tip Banner */
+.tip-banner{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border-radius:var(--radius);margin-bottom:16px}
+.tip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tip-banner p{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* Exercise Card */
+.ex-card{background:var(--card);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.ex-header{display:flex;align-items:center;padding:14px 16px;gap:10px}
+.ex-badge{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ex-name{font-size:15px;font-weight:600;flex:1}
+.ex-meta{font-size:12px;color:var(--text3);white-space:nowrap}
+.ex-toggle{font-size:12px;color:var(--blue);padding:4px 0;cursor:pointer;-webkit-user-select:none;user-select:none}
+
+.ex-tips{padding:0 16px 12px;font-size:13px;color:var(--text3);line-height:1.6;display:none}
+.ex-tips.open{display:block}
+
+.ex-sets{padding:0 16px 12px}
+.set-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--sep)}
+.set-row:last-child{border-bottom:none}
+.set-label{width:36px;font-size:13px;color:var(--text3);font-weight:500;flex-shrink:0}
+.set-input{width:60px;text-align:center;font-size:15px;font-weight:500;padding:6px 4px;border-bottom:1.5px solid var(--sep);transition:border-color .2s;border-radius:0}
+.set-input:focus{border-color:var(--blue)}
+.set-input::placeholder{color:#C7C7CC;font-weight:400}
+.set-unit{font-size:12px;color:var(--text3);width:20px;flex-shrink:0}
+.set-check{width:28px;height:28px;border-radius:50%;border:2px solid #D1D1D6;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;margin-left:auto}
+.set-check.done{border-color:var(--green);background:var(--green)}
+.set-check.done svg{display:block}
+.set-check svg{display:none;width:14px;height:14px;fill:#fff}
+
+.add-set-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;font-size:13px;color:var(--blue);font-weight:500;width:100%}
+.add-set-btn:active{opacity:.5}
+
+/* Finish Button */
+.finish-btn{display:block;width:100%;padding:16px;border-radius:14px;font-size:17px;font-weight:600;color:#fff;text-align:center;margin-top:20px;transition:opacity .2s}
+.finish-btn:active{opacity:.7}
+.finish-btn.push{background:var(--blue)}
+.finish-btn.pull{background:var(--green)}
+.finish-btn.leg{background:var(--orange)}
+
+/* Rest Day */
+.rest-card{background:var(--card);border-radius:var(--radius);padding:40px 20px;text-align:center}
+.rest-card .rest-emoji{font-size:48px;margin-bottom:12px}
+.rest-card h3{font-size:20px;font-weight:600;margin-bottom:8px}
+.rest-card p{font-size:14px;color:var(--text3);line-height:1.6}
+
+/* History */
+.history-item{background:var(--card);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.history-header{display:flex;align-items:center;padding:14px 16px;gap:10px}
+.history-date{font-size:15px;font-weight:600;flex:1}
+.history-type{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;color:#fff}
+.history-type.push{background:var(--blue)}
+.history-type.pull{background:var(--green)}
+.history-type.leg{background:var(--orange)}
+.history-arrow{font-size:16px;color:var(--text3);transition:transform .2s}
+.history-arrow.open{transform:rotate(90deg)}
+.history-detail{display:none;padding:0 16px 14px}
+.history-detail.open{display:block}
+.history-ex{margin-bottom:10px}
+.history-ex-name{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.history-set-line{font-size:12px;color:var(--text3);line-height:1.8}
+.history-delete{font-size:13px;color:var(--red);padding:8px 16px;border-top:0.5px solid var(--sep);text-align:center}
+.history-delete:active{opacity:.5}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:15px}
+
+/* Plan Page */
+.plan-section{background:var(--card);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.plan-section-title{font-size:15px;font-weight:600;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.plan-section-title .arrow{font-size:14px;color:var(--text3);transition:transform .2s}
+.plan-section-title .arrow.open{transform:rotate(90deg)}
+.plan-section-body{display:none;padding:0 16px 14px;font-size:13px;color:var(--text2);line-height:1.8}
+.plan-section-body.open{display:block}
+.plan-section-body h4{font-size:14px;font-weight:600;color:var(--text);margin:8px 0 4px}
+.plan-section-body ul{padding-left:18px}
+.plan-section-body li{margin-bottom:4px}
+.plan-section-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}
+.plan-section-body th,.plan-section-body td{padding:6px 8px;text-align:left;border-bottom:0.5px solid var(--sep)}
+.plan-section-body th{font-weight:600;color:var(--text)}
+
+/* Dialog */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:200;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.dialog{background:var(--card);border-radius:14px 14px 0 0;width:100%;max-width:500px;padding:20px 16px calc(20px + var(--safe-b));animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.dialog h3{font-size:17px;font-weight:600;text-align:center;margin-bottom:16px}
+.dialog-btns{display:flex;gap:10px;margin-top:16px}
+.dialog-btns button{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:600}
+.dialog-cancel{background:var(--bg);color:var(--text)}
+.dialog-confirm{background:var(--blue);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- ==================== 今日训练 ==================== -->
+<div class="page active" id="pageTrain">
+  <h1 class="page-title" id="trainTitle">推日</h1>
+  <p class="page-subtitle" id="trainDate"></p>
+
+  <div class="day-selector">
+    <button class="day-btn active-push" data-day="push" onclick="switchDay('push')">推日</button>
+    <button class="day-btn" data-day="pull" onclick="switchDay('pull')">拉日</button>
+    <button class="day-btn" data-day="leg" onclick="switchDay('leg')">腿日</button>
+    <button class="day-btn" data-day="rest" onclick="switchDay('rest')">休息</button>
+  </div>
+
+  <div id="trainContent"></div>
+</div>
+
+<!-- ==================== 训练记录 ==================== -->
+<div class="page" id="pageHistory">
+  <h1 class="page-title">训练记录</h1>
+  <p class="page-subtitle">查看历史训练数据</p>
+  <div id="historyList"></div>
+</div>
+
+<!-- ==================== 计划详情 ==================== -->
+<div class="page" id="pagePlan">
+  <h1 class="page-title">计划详情</h1>
+  <p class="page-subtitle">推拉腿3分化增肌计划</p>
+  <div id="planContent"></div>
+</div>
+
+<!-- ==================== Tab Bar ==================== -->
+<nav class="tab-bar">
+  <button class="tab-item active" data-page="pageTrain" onclick="switchPage('pageTrain',this)">
+    <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>
+    <span>训练</span>
+  </button>
+  <button class="tab-item" data-page="pageHistory" onclick="switchPage('pageHistory',this)">
+    <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+    <span>记录</span>
+  </button>
+  <button class="tab-item" data-page="pagePlan" onclick="switchPage('pagePlan',this)">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zM6 20V4h5v7h7v9H6z"/></svg>
+    <span>计划</span>
+  </button>
+</nav>
+
+<!-- ==================== 完成确认弹窗 ==================== -->
+<div class="overlay" id="finishDialog">
+  <div class="dialog">
+    <h3>完成今日训练？</h3>
+    <p style="font-size:14px;color:var(--text3);text-align:center">训练数据将保存到历史记录</p>
+    <div class="dialog-btns">
+      <button class="dialog-cancel" onclick="closeDialog()">取消</button>
+      <button class="dialog-confirm" onclick="confirmFinish()">确认完成</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======================== DATA ========================
+const PLANS = {
+  push: {
+    label: '推日', sub: '胸 · 肩前中束 · 肱三头肌', color: 'var(--blue)', cls: 'push',
+    exercises: [
+      {name:'平板杠铃卧推', sets:4, reps:'4-6RM', tips:'沉肩收肩胛，杠铃下落至乳头位置，推起时不锁肘，核心全程绷紧'},
+      {name:'上斜哑铃卧推', sets:4, reps:'6-8RM', tips:'上斜角度15-30°，哑铃下落至胸上沿，发力时向内夹胸，顶峰收缩1秒'},
+      {name:'坐姿哑铃肩推', sets:4, reps:'6-8RM', tips:'腰背贴紧靠背，哑铃推至头顶正上方，不耸肩，下落至耳侧位置'},
+      {name:'双杠臂屈伸', sets:3, reps:'8-12RM', tips:'身体前倾15°侧重胸下沿，直立侧重三头，下沉至肘关节90°'},
+      {name:'绳索侧平举', sets:3, reps:'12-15RM', tips:'沉肩固定，肘部微屈不锁死，肩中束发力抬起至与肩平齐，慢放控制离心'},
+      {name:'绳索面拉', sets:3, reps:'12-15RM', tips:'绳索拉至额头位置，肘部向外打开，全程收紧肩后束，改善圆肩体态'},
+      {name:'正握绳索下压', sets:3, reps:'10-12RM', tips:'大臂贴紧身体固定，仅小臂活动，下压至手臂伸直，慢放控制离心'}
+    ]
+  },
+  pull: {
+    label: '拉日', sub: '背阔肌 · 斜方肌 · 肱二头肌', color: 'var(--green)', cls: 'pull',
+    exercises: [
+      {name:'传统硬拉', sets:4, reps:'4-6RM', tips:'沉肩收肩胛，腰背全程挺直，屈髋屈膝同步发力，杠铃贴紧腿上下'},
+      {name:'宽握高位下拉', sets:4, reps:'6-8RM', tips:'沉肩不耸肩，下拉至胸前锁骨位置，肘部向下向内收，用背阔肌发力'},
+      {name:'俯身杠铃划船', sets:4, reps:'6-8RM', tips:'上半身与地面呈30-45°，腰背挺直，杠铃拉至下腹位置，收紧中背'},
+      {name:'宽握坐姿绳索划船', sets:3, reps:'8-12RM', tips:'坐直挺胸，拉至下腹位置，肘部向后打开，收紧肩胛骨'},
+      {name:'辅助/自重引体向上', sets:3, reps:'力竭8-12次', tips:'宽握沉肩，拉起时下巴过杆，下落时控制速度，充分拉伸背阔肌'},
+      {name:'哑铃锤式弯举', sets:3, reps:'10-12RM', tips:'大臂贴紧身体固定，仅小臂活动，兼顾肱二头肌与肱桡肌'},
+      {name:'牧师凳杠铃弯举', sets:3, reps:'12-15RM', tips:'手臂贴紧牧师凳，孤立肱二头肌，顶峰收缩1秒，慢放离心'}
+    ]
+  },
+  leg: {
+    label: '腿日', sub: '股四头肌 · 腘绳肌 · 臀大肌 · 核心', color: 'var(--orange)', cls: 'leg',
+    exercises: [
+      {name:'杠铃颈后深蹲', sets:4, reps:'4-6RM', tips:'双脚与肩同宽，脚尖微外展，蹲至大腿与地面平行，膝盖与脚尖方向一致'},
+      {name:'保加利亚单腿蹲', sets:4, reps:'6-8RM', tips:'后脚搭凳，前脚距凳约60cm，躯干微前倾，下蹲至前腿大腿与地面平行，膝盖与脚尖方向一致，发力时前脚跟蹬地'},
+      {name:'坐姿腿屈伸', sets:3, reps:'12-15RM', tips:'坐直贴紧靠背，发力时伸直腿顶峰收缩1秒，慢放离心，孤立股四头肌'},
+      {name:'俯卧腿弯举', sets:3, reps:'12-15RM', tips:'腹部贴紧凳面，脚后跟贴向臀部，顶峰收缩1秒，慢放离心'},
+      {name:'站姿提踵', sets:3, reps:'15-20RM', tips:'前脚掌踩实踏板，踮起脚尖顶峰收缩1秒，慢放充分拉伸小腿'},
+      {name:'核心收尾', sets:2, reps:'平板支撑60s + 悬垂举腿10-12次', tips:'全程核心绷紧，稳定躯干，改善体态'}
+    ]
+  }
+};
+
+const PLAN_SECTIONS = [
+  {title:'核心训练规则', body:`
+<h4>训练频率</h4>
+<p>「练3休1」循环：Day1 推 → Day2 拉 → Day3 腿 → Day4 休息，单肌群每周训练2次。</p>
+<table><tr><th>动作类型</th><th>次数/RM</th><th>组间休息</th><th>核心作用</th></tr>
+<tr><td>复合核心动作</td><td>4-6RM</td><td>2-3分钟</td><td>力量基础</td></tr>
+<tr><td>辅助增肌动作</td><td>8-12RM</td><td>90-120秒</td><td>肌肥大</td></tr>
+<tr><td>线条雕刻动作</td><td>12-15RM</td><td>60秒</td><td>肌肉分离度</td></tr></table>
+<p><strong>铁则</strong>：动作标准优先于重量，渐进超负荷为增肌核心。</p>`},
+  {title:'热身与拉伸流程', body:`
+<h4>训练前热身（10-15分钟）</h4>
+<ul><li>通用有氧：5分钟慢跑/跳绳/椭圆机</li>
+<li>动态拉伸：5分钟，肩环绕、手臂画圈、髋关节环绕、弓步压腿</li>
+<li>专项热身：每个复合动作前做2组轻重量热身</li></ul>
+<h4>训练后拉伸（5-10分钟）</h4>
+<p>针对当日训练肌群，每部位拉伸30-60秒×2组。</p>`},
+  {title:'动作替换方案', body:`
+<h4>推日</h4>
+<ul><li>平板卧推 → 史密斯卧推 / 哑铃平板卧推</li>
+<li>肩推 → 史密斯肩推 / 器械肩推</li>
+<li>侧平举 → 哑铃侧平举</li>
+<li>绳索下压 → 哑铃颈后臂屈伸</li></ul>
+<h4>拉日</h4>
+<ul><li>传统硬拉 → 相扑硬拉</li>
+<li>高位下拉 → 辅助引体向上</li>
+<li>杠铃划船 → 单臂哑铃划船</li>
+<li>弯举 → 绳索弯举 / 集中弯举</li></ul>
+<h4>腿日</h4>
+<ul><li>杠铃深蹲 → 箱式深蹲 / 史密斯深蹲 / 哈克深蹲</li>
+<li>保加利亚单腿蹲 → 哑铃弓步蹲 / 史密斯单腿蹲</li>
+</ul>`},
+  {title:'增肌期饮食方案', body:`
+<h4>热量 & 宏观营养素（60kg体重）</h4>
+<ul><li><strong>热量盈余</strong>：基础代谢 + 日常消耗 + 300-500大卡，每月体重涨0.5-1kg</li>
+<li><strong>蛋白质</strong>：1.8-2.2g/kg → 每日108-132g，分3-5餐</li>
+<li><strong>碳水</strong>：4-6g/kg → 每日240-360g，训练前后优先</li>
+<li><strong>脂肪</strong>：0.8-1g/kg → 每日48-60g</li>
+<li><strong>饮水</strong>：每日2-3L</li></ul>
+<h4>蛋白质优质来源</h4>
+<p>鸡胸肉、鱼虾、鸡蛋、低脂牛奶、瘦牛肉、豆制品、蛋白粉</p>`},
+  {title:'恢复与注意事项', body:`
+<h4>恢复</h4>
+<ul><li><strong>睡眠</strong>：每日7-9小时，深度睡眠是生长激素分泌高峰</li>
+<li><strong>减载</strong>：每6-8周安排1个减载周，容量降至50%</li>
+<li><strong>休息日</strong>：可做低强度有氧（散步、瑜伽），不建议完全躺平</li></ul>
+<h4>关键注意事项</h4>
+<ul><li>动作标准永远第一，避免含胸、弓背、膝盖内扣、耸肩</li>
+<li>体态优先于维度，推日强化后束、拉日重点练中下斜方肌</li>
+<li>关节不适立刻更换动作，状态差适当降低重量</li></ul>`}
+];
+
+// ======================== STATE ========================
+let currentDay = 'push';
+let sessionData = {};
+
+function getToday(){ return new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'}) }
+function getLogs(){ return JSON.parse(localStorage.getItem('gym_logs')||'[]') }
+function saveLogs(logs){ localStorage.setItem('gym_logs', JSON.stringify(logs)) }
+
+// ======================== PAGE SWITCH ========================
+function switchPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(id==='pageHistory') renderHistory();
+  if(id==='pagePlan') renderPlan();
+}
+
+// ======================== DAY SWITCH ========================
+function switchDay(day){
+  currentDay = day;
+  sessionData = {};
+  document.querySelectorAll('.day-btn').forEach(b=>{
+    b.className = 'day-btn';
+    if(b.dataset.day === day) b.classList.add('active-'+day);
+  });
+  const plan = PLANS[day];
+  const title = document.getElementById('trainTitle');
+  if(day==='rest'){
+    title.textContent = '休息日';
+  } else {
+    title.textContent = plan.label;
+  }
+  renderTrainContent();
+}
+
+// ======================== RENDER TRAINING ========================
+function renderTrainContent(){
+  const ct = document.getElementById('trainContent');
+  if(currentDay === 'rest'){
+    ct.innerHTML = `<div class="rest-card">
+      <div class="rest-emoji">🧘</div>
+      <h3>今日休息</h3>
+      <p>可做低强度有氧（散步、瑜伽），促进血液循环与肌肉恢复。充足睡眠，合理饮食，为下一轮训练蓄力。</p></div>`;
+    return;
+  }
+  const plan = PLANS[currentDay];
+  let html = '';
+  html += `<div class="tip-banner"><div class="tip-dot" style="background:${plan.color}"></div><p>训练前请完成10-15分钟热身：有氧5分钟 + 动态拉伸 + 专项热身组</p></div>`;
+
+  plan.exercises.forEach((ex,ei)=>{
+    const setCount = ex.sets;
+    let setsHtml = '';
+    for(let s=0;s<setCount;s++){
+      setsHtml += setRowHTML(ei, s);
+    }
+    html += `<div class="ex-card" data-ei="${ei}">
+      <div class="ex-header">
+        <div class="ex-badge" style="background:${plan.color}"></div>
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-meta">${ex.sets}组 × ${ex.reps}</div>
+      </div>
+      <div class="ex-toggle" style="padding:0 16px 8px" onclick="toggleTips(this)">查看要点 ›</div>
+      <div class="ex-tips">${ex.tips}</div>
+      <div class="ex-sets" id="sets-${ei}">${setsHtml}</div>
+      <button class="add-set-btn" onclick="addSet(${ei})">+ 添加一组</button>
+    </div>`;
+  });
+
+  html += `<div class="tip-banner" style="margin-top:12px"><div class="tip-dot" style="background:${plan.color}"></div><p>训练后请完成5-10分钟拉伸：针对今日训练肌群，每部位30-60秒×2组</p></div>`;
+  html += `<button class="finish-btn ${plan.cls}" onclick="showFinishDialog()">完成今日训练</button>`;
+  ct.innerHTML = html;
+}
+
+function setRowHTML(ei, si){
+  return `<div class="set-row" data-ei="${ei}" data-si="${si}">
+    <span class="set-label">第${si+1}组</span>
+    <input class="set-input" type="number" inputmode="decimal" placeholder="0" onchange="saveSet(${ei},${si},'weight',this.value)">
+    <span class="set-unit">kg</span>
+    <input class="set-input" type="number" inputmode="numeric" placeholder="0" onchange="saveSet(${ei},${si},'reps',this.value)">
+    <span class="set-unit">次</span>
+    <div class="set-check" onclick="toggleCheck(this,${ei},${si})"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+  </div>`;
+}
+
+function toggleTips(el){
+  const tips = el.nextElementSibling;
+  tips.classList.toggle('open');
+  el.textContent = tips.classList.contains('open') ? '收起要点 ‹' : '查看要点 ›';
+}
+
+function addSet(ei){
+  const container = document.getElementById('sets-'+ei);
+  const si = container.querySelectorAll('.set-row').length;
+  container.insertAdjacentHTML('beforeend', setRowHTML(ei, si));
+}
+
+function saveSet(ei, si, field, value){
+  if(!sessionData[ei]) sessionData[ei] = {};
+  if(!sessionData[ei][si]) sessionData[ei][si] = {};
+  sessionData[ei][si][field] = value;
+}
+
+function toggleCheck(el, ei, si){
+  el.classList.toggle('done');
+  if(!sessionData[ei]) sessionData[ei] = {};
+  if(!sessionData[ei][si]) sessionData[ei][si] = {};
+  sessionData[ei][si].done = el.classList.contains('done');
+}
+
+// ======================== FINISH ========================
+function showFinishDialog(){
+  document.getElementById('finishDialog').classList.add('show');
+}
+function closeDialog(){
+  document.getElementById('finishDialog').classList.remove('show');
+}
+function confirmFinish(){
+  closeDialog();
+  const plan = PLANS[currentDay];
+  if(!plan) return;
+  const record = {
+    date: getToday(),
+    timestamp: Date.now(),
+    type: currentDay,
+    label: plan.label,
+    exercises: plan.exercises.map((ex,ei)=>{
+      const sets = [];
+      const rows = document.querySelectorAll(`#sets-${ei} .set-row`);
+      rows.forEach((row,si)=>{
+        const inputs = row.querySelectorAll('.set-input');
+        const w = inputs[0]?.value || '';
+        const r = inputs[1]?.value || '';
+        const done = row.querySelector('.set-check')?.classList.contains('done');
+        if(w || r) sets.push({weight:w, reps:r, done});
+      });
+      return {name:ex.name, sets};
+    })
+  };
+  const logs = getLogs();
+  logs.unshift(record);
+  saveLogs(logs);
+  sessionData = {};
+  renderTrainContent();
+  showToast('训练已保存 💪');
+}
+
+function showToast(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  Object.assign(t.style,{position:'fixed',top:'60px',left:'50%',transform:'translateX(-50%)',background:'rgba(0,0,0,0.8)',color:'#fff',padding:'10px 24px',borderRadius:'20px',fontSize:'14px',fontWeight:'600',zIndex:'999',animation:'fadeInOut 2s ease forwards'});
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2200);
+}
+const toastStyle = document.createElement('style');
+toastStyle.textContent = '@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}85%{opacity:1}100%{opacity:0}}';
+document.head.appendChild(toastStyle);
+
+// ======================== HISTORY ========================
+function renderHistory(){
+  const logs = getLogs();
+  const ct = document.getElementById('historyList');
+  if(!logs.length){
+    ct.innerHTML = '<div class="empty-state">暂无训练记录<br>完成一次训练后这里会显示数据</div>';
+    return;
+  }
+  ct.innerHTML = logs.map((log,i)=>{
+    const exDetail = log.exercises.map(ex=>{
+      if(!ex.sets.length) return '';
+      const lines = ex.sets.map((s,j)=>`<div class="history-set-line">第${j+1}组：${s.weight||'-'}kg × ${s.reps||'-'}次 ${s.done?'✓':''}</div>`).join('');
+      return `<div class="history-ex"><div class="history-ex-name">${ex.name}</div>${lines}</div>`;
+    }).join('');
+    return `<div class="history-item">
+      <div class="history-header" onclick="toggleHistory(this)">
+        <div class="history-date">${log.date}</div>
+        <span class="history-type ${log.type}">${log.label}</span>
+        <span class="history-arrow">›</span>
+      </div>
+      <div class="history-detail">${exDetail}</div>
+      <div class="history-delete" onclick="deleteLog(${i})">删除记录</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistory(el){
+  const detail = el.nextElementSibling;
+  const arrow = el.querySelector('.history-arrow');
+  detail.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function deleteLog(i){
+  if(!confirm('确定删除此条记录？')) return;
+  const logs = getLogs();
+  logs.splice(i,1);
+  saveLogs(logs);
+  renderHistory();
+}
+
+// ======================== PLAN ========================
+function renderPlan(){
+  const ct = document.getElementById('planContent');
+  if(ct.children.length) return;
+  ct.innerHTML = PLAN_SECTIONS.map((s,i)=>`
+    <div class="plan-section">
+      <div class="plan-section-title" onclick="togglePlanSection(this)">
+        ${s.title}<span class="arrow">›</span>
+      </div>
+      <div class="plan-section-body">${s.body}</div>
+    </div>`).join('');
+}
+
+function togglePlanSection(el){
+  const body = el.nextElementSibling;
+  const arrow = el.querySelector('.arrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+// ======================== INIT ========================
+function init(){
+  const d = new Date();
+  document.getElementById('trainDate').textContent =
+    d.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  renderTrainContent();
+}
+init();
+</script>
+</body>
+</html>
