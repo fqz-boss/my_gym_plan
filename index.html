@@ -101,8 +101,16 @@ input{font-family:inherit;font-size:inherit;border:none;outline:none;background:
 .history-ex{margin-bottom:10px}
 .history-ex-name{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px}
 .history-set-line{font-size:12px;color:var(--text3);line-height:1.8}
-.history-delete{font-size:13px;color:var(--red);padding:8px 16px;border-top:0.5px solid var(--sep);text-align:center}
-.history-delete:active{opacity:.5}
+.history-actions{display:flex;border-top:0.5px solid var(--sep)}
+.history-actions button{flex:1;padding:10px 16px;font-size:13px;font-weight:500;text-align:center}
+.history-actions .history-edit{color:var(--blue)}
+.history-actions .history-delete{color:var(--red)}
+.history-actions button:active{opacity:.5}
+.edit-log-ex-block{margin-bottom:16px;padding-bottom:12px;border-bottom:0.5px solid var(--sep)}
+.edit-log-ex-block:last-child{border-bottom:none}
+.edit-log-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:6px 0}
+.edit-log-done{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px}
+.edit-log-scroll{margin:8px 0;max-height:48vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:15px}
 
 /* Plan Page */
@@ -129,6 +137,23 @@ input{font-family:inherit;font-size:inherit;border:none;outline:none;background:
 .dialog-btns button{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:600}
 .dialog-cancel{background:var(--bg);color:var(--text)}
 .dialog-confirm{background:var(--blue);color:#fff}
+
+/* Plan Edit */
+.plan-edit-section{background:var(--card);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.plan-edit-section-title{font-size:15px;font-weight:600;padding:14px 16px;border-bottom:0.5px solid var(--sep)}
+.plan-edit-day{margin-bottom:16px}
+.plan-edit-day:last-child{margin-bottom:0}
+.plan-edit-day-title{font-size:14px;font-weight:600;color:var(--text2);padding:10px 16px;background:var(--bg)}
+.plan-edit-ex{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:0.5px solid var(--sep)}
+.plan-edit-ex-name{flex:1;font-size:14px;color:var(--text)}
+.plan-edit-ex-meta{font-size:12px;color:var(--text3);white-space:nowrap}
+.plan-edit-btns{display:flex;gap:6px;flex-shrink:0}
+.plan-edit-btn{font-size:12px;padding:4px 10px;border-radius:8px;color:var(--blue);font-weight:500}
+.plan-edit-btn.delete{color:var(--red)}
+.plan-add-btn{display:block;width:100%;padding:10px 16px;font-size:13px;color:var(--blue);font-weight:500;text-align:center}
+.plan-add-btn:active{opacity:.7}
+.dialog-label{font-size:13px;color:var(--text3);margin-bottom:4px}
+.dialog-input{width:100%;padding:10px 12px;border-radius:10px;border:0.5px solid var(--sep);font-size:15px;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -190,6 +215,50 @@ input{font-family:inherit;font-size:inherit;border:none;outline:none;background:
   </div>
 </div>
 
+<!-- 编辑动作弹窗 -->
+<div class="overlay" id="editExDialog">
+  <div class="dialog">
+    <h3>编辑动作</h3>
+    <input type="hidden" id="editExDay" value="">
+    <input type="hidden" id="editExIdx" value="">
+    <div class="dialog-label">动作名称</div>
+    <input type="text" class="dialog-input" id="editExName" placeholder="如：平板杠铃卧推">
+    <div class="dialog-label">组数</div>
+    <input type="number" class="dialog-input" id="editExSets" placeholder="4" min="1">
+    <div class="dialog-label">次数/RM</div>
+    <input type="text" class="dialog-input" id="editExReps" placeholder="如：4-6RM">
+    <div class="dialog-label">执行要点</div>
+    <input type="text" class="dialog-input" id="editExTips" placeholder="选填">
+    <div class="dialog-btns">
+      <button class="dialog-cancel" onclick="closeEditExDialog()">取消</button>
+      <button class="dialog-confirm" onclick="saveEditEx()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑训练记录 -->
+<div class="overlay" id="editLogDialog">
+  <div class="dialog">
+    <h3>编辑训练记录</h3>
+    <input type="hidden" id="editLogId" value="">
+    <input type="hidden" id="editLogTimestamp" value="">
+    <div class="dialog-label">日期</div>
+    <input type="text" class="dialog-input" id="editLogDate" placeholder="如：2025/03/26">
+    <div class="dialog-label">训练日</div>
+    <select class="dialog-input" id="editLogType" style="appearance:auto;-webkit-appearance:menulist">
+      <option value="push">推日</option>
+      <option value="pull">拉日</option>
+      <option value="leg">腿日</option>
+    </select>
+    <div class="dialog-label">各动作与组数</div>
+    <div class="edit-log-scroll" id="editLogExContainer"></div>
+    <div class="dialog-btns">
+      <button class="dialog-cancel" onclick="closeEditLogDialog()">取消</button>
+      <button class="dialog-confirm" onclick="saveEditLog()">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ======================== DATA ========================
 const PLANS = {
@@ -229,6 +298,72 @@ const PLANS = {
     ]
   }
 };
+
+const PLAN_STORAGE_KEY = 'gym_plan';
+function getPlan(){
+  try {
+    const raw = localStorage.getItem(PLAN_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(PLANS));
+}
+function savePlan(plan){
+  localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(plan));
+}
+
+const DRAFT_STORAGE_KEY = 'gym_draft';
+function getDraft(){
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+function saveDraft(obj){
+  if (obj) localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(obj));
+  else localStorage.removeItem(DRAFT_STORAGE_KEY);
+}
+function clearDraft(){
+  localStorage.removeItem(DRAFT_STORAGE_KEY);
+}
+function collectDraftFromForm(){
+  if (currentDay === 'rest') return null;
+  const plan = getPlan()[currentDay];
+  const exercises = [];
+  (plan.exercises || []).forEach((ex, ei)=>{
+    const container = document.getElementById('sets-'+ei);
+    if (!container) { exercises.push({ name: ex.name, sets: [] }); return; }
+    const rows = container.querySelectorAll('.set-row');
+    const sets = [];
+    rows.forEach((row)=>{
+      const inputs = row.querySelectorAll('.set-input');
+      const done = row.querySelector('.set-check')?.classList.contains('done');
+      sets.push({
+        weight: inputs[0]?.value?.trim() || '',
+        reps: inputs[1]?.value?.trim() || '',
+        done: !!done
+      });
+    });
+    exercises.push({ name: ex.name, sets });
+  });
+  return { day: currentDay, date: getToday(), exercises };
+}
+function restoreDraftToForm(draft){
+  if (!draft || draft.day !== currentDay) return;
+  (draft.exercises || []).forEach((ex, ei)=>{
+    const container = document.getElementById('sets-'+ei);
+    if (!container) return;
+    const rows = container.querySelectorAll('.set-row');
+    (ex.sets || []).forEach((s, si)=>{
+      if (!rows[si]) return;
+      const inputs = rows[si].querySelectorAll('.set-input');
+      const check = rows[si].querySelector('.set-check');
+      if (inputs[0]) inputs[0].value = s.weight || '';
+      if (inputs[1]) inputs[1].value = s.reps || '';
+      if (check) { if (s.done) check.classList.add('done'); else check.classList.remove('done'); }
+    });
+  });
+}
 
 const PLAN_SECTIONS = [
   {title:'核心训练规则', body:`
@@ -286,8 +421,56 @@ let currentDay = 'push';
 let sessionData = {};
 
 function getToday(){ return new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'}) }
-function getLogs(){ return JSON.parse(localStorage.getItem('gym_logs')||'[]') }
-function saveLogs(logs){ localStorage.setItem('gym_logs', JSON.stringify(logs)) }
+
+const API = '/api/logs';
+async function getLogs(){
+  try {
+    const r = await fetch(API);
+    if(!r.ok) throw new Error(r.statusText);
+    return await r.json();
+  } catch (e) {
+    console.error('getLogs', e);
+    return [];
+  }
+}
+async function saveLog(record){
+  const r = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(record)
+  });
+  const text = await r.text();
+  if(!r.ok){
+    try{
+      const j = JSON.parse(text);
+      throw new Error(j.error || text || r.statusText);
+    }catch(_){
+      throw new Error(text || r.statusText);
+    }
+  }
+  return JSON.parse(text);
+}
+async function deleteLogById(id){
+  const r = await fetch(`${API}/${id}`, { method: 'DELETE' });
+  if(!r.ok) throw new Error(r.statusText);
+}
+async function updateLog(id, payload){
+  const r = await fetch(`${API}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const text = await r.text();
+  if(!r.ok){
+    try{
+      const j = JSON.parse(text);
+      throw new Error(j.error || text || r.statusText);
+    }catch(_){
+      throw new Error(text || r.statusText);
+    }
+  }
+  return text ? JSON.parse(text) : {};
+}
 
 // ======================== PAGE SWITCH ========================
 function switchPage(id, el){
@@ -307,7 +490,7 @@ function switchDay(day){
     b.className = 'day-btn';
     if(b.dataset.day === day) b.classList.add('active-'+day);
   });
-  const plan = PLANS[day];
+  const plan = getPlan()[day];
   const title = document.getElementById('trainTitle');
   if(day==='rest'){
     title.textContent = '休息日';
@@ -327,7 +510,7 @@ function renderTrainContent(){
       <p>可做低强度有氧（散步、瑜伽），促进血液循环与肌肉恢复。充足睡眠，合理饮食，为下一轮训练蓄力。</p></div>`;
     return;
   }
-  const plan = PLANS[currentDay];
+  const plan = getPlan()[currentDay];
   let html = '';
   html += `<div class="tip-banner"><div class="tip-dot" style="background:${plan.color}"></div><p>训练前请完成10-15分钟热身：有氧5分钟 + 动态拉伸 + 专项热身组</p></div>`;
 
@@ -351,8 +534,10 @@ function renderTrainContent(){
   });
 
   html += `<div class="tip-banner" style="margin-top:12px"><div class="tip-dot" style="background:${plan.color}"></div><p>训练后请完成5-10分钟拉伸：针对今日训练肌群，每部位30-60秒×2组</p></div>`;
+  html += `<button type="button" class="finish-btn" style="background:var(--bg);color:var(--text);margin-top:12px" onclick="saveDraftBtn()">保存草稿</button>`;
   html += `<button class="finish-btn ${plan.cls}" onclick="showFinishDialog()">完成今日训练</button>`;
   ct.innerHTML = html;
+  restoreDraftToForm(getDraft());
 }
 
 function setRowHTML(ei, si){
@@ -398,9 +583,9 @@ function showFinishDialog(){
 function closeDialog(){
   document.getElementById('finishDialog').classList.remove('show');
 }
-function confirmFinish(){
+async function confirmFinish(){
   closeDialog();
-  const plan = PLANS[currentDay];
+  const plan = getPlan()[currentDay];
   if(!plan) return;
   const record = {
     date: getToday(),
@@ -420,12 +605,21 @@ function confirmFinish(){
       return {name:ex.name, sets};
     })
   };
-  const logs = getLogs();
-  logs.unshift(record);
-  saveLogs(logs);
-  sessionData = {};
-  renderTrainContent();
-  showToast('训练已保存 💪');
+  try {
+    await saveLog(record);
+    clearDraft();
+    sessionData = {};
+    renderTrainContent();
+    showToast('训练已保存 💪');
+  } catch (e) {
+    const m = (e && e.message) ? String(e.message) : '';
+    showToast(m && m.length < 120 ? ('保存失败: ' + m) : '保存失败，请稍后重试');
+  }
+}
+
+function saveDraftBtn(){
+  persistDraftIfTrain();
+  showToast('草稿已保存');
 }
 
 function showToast(msg){
@@ -440,16 +634,19 @@ toastStyle.textContent = '@keyframes fadeInOut{0%{opacity:0;transform:translateX
 document.head.appendChild(toastStyle);
 
 // ======================== HISTORY ========================
-function renderHistory(){
-  const logs = getLogs();
+async function renderHistory(){
   const ct = document.getElementById('historyList');
+  ct.innerHTML = '<div class="empty-state">加载中…</div>';
+  const logs = await getLogs();
   if(!logs.length){
     ct.innerHTML = '<div class="empty-state">暂无训练记录<br>完成一次训练后这里会显示数据</div>';
+    window.__historyLogs = [];
     return;
   }
-  ct.innerHTML = logs.map((log,i)=>{
-    const exDetail = log.exercises.map(ex=>{
-      if(!ex.sets.length) return '';
+  window.__historyLogs = logs;
+  ct.innerHTML = logs.map((log)=>{
+    const exDetail = (log.exercises||[]).map(ex=>{
+      if(!ex.sets||!ex.sets.length) return '';
       const lines = ex.sets.map((s,j)=>`<div class="history-set-line">第${j+1}组：${s.weight||'-'}kg × ${s.reps||'-'}次 ${s.done?'✓':''}</div>`).join('');
       return `<div class="history-ex"><div class="history-ex-name">${ex.name}</div>${lines}</div>`;
     }).join('');
@@ -460,7 +657,10 @@ function renderHistory(){
         <span class="history-arrow">›</span>
       </div>
       <div class="history-detail">${exDetail}</div>
-      <div class="history-delete" onclick="deleteLog(${i})">删除记录</div>
+      <div class="history-actions">
+        <button type="button" class="history-edit" onclick="event.stopPropagation();openEditLog('${log.id}')">编辑</button>
+        <button type="button" class="history-delete" onclick="event.stopPropagation();deleteLog(${log.id})">删除</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -472,25 +672,189 @@ function toggleHistory(el){
   arrow.classList.toggle('open');
 }
 
-function deleteLog(i){
+async function deleteLog(id){
   if(!confirm('确定删除此条记录？')) return;
-  const logs = getLogs();
-  logs.splice(i,1);
-  saveLogs(logs);
-  renderHistory();
+  try {
+    await deleteLogById(id);
+    await renderHistory();
+  } catch (e) {
+    showToast('删除失败，请稍后重试');
+  }
+}
+
+function openEditLog(id){
+  const log = (window.__historyLogs||[]).find(l=>String(l.id)===String(id));
+  if(!log){ showToast('未找到记录'); return; }
+  document.getElementById('editLogId').value = String(log.id);
+  document.getElementById('editLogTimestamp').value = String(log.timestamp != null ? log.timestamp : Date.now());
+  document.getElementById('editLogDate').value = log.date || '';
+  document.getElementById('editLogType').value = (log.type && ['push','pull','leg'].includes(log.type)) ? log.type : 'push';
+  const c = document.getElementById('editLogExContainer');
+  c.innerHTML = '';
+  (log.exercises||[]).forEach(ex=>{
+    const block = document.createElement('div');
+    block.className = 'edit-log-ex-block';
+    const nl = document.createElement('div');
+    nl.className = 'dialog-label';
+    nl.textContent = '动作名称';
+    block.appendChild(nl);
+    const ni = document.createElement('input');
+    ni.type = 'text';
+    ni.className = 'dialog-input edit-log-ex-name';
+    ni.value = ex.name || '';
+    block.appendChild(ni);
+    (ex.sets||[]).forEach((s, si)=>{
+      const row = document.createElement('div');
+      row.className = 'edit-log-row';
+      const lab = document.createElement('span');
+      lab.className = 'set-label';
+      lab.textContent = '第'+(si+1)+'组';
+      row.appendChild(lab);
+      const iw = document.createElement('input');
+      iw.type = 'number';
+      iw.className = 'set-input';
+      iw.placeholder = 'kg';
+      if(s.weight!==''&&s.weight!=null) iw.value = s.weight;
+      const ir = document.createElement('input');
+      ir.type = 'number';
+      ir.className = 'set-input';
+      ir.placeholder = '次';
+      if(s.reps!==''&&s.reps!=null) ir.value = s.reps;
+      const lbl = document.createElement('label');
+      lbl.className = 'edit-log-done';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = !!s.done;
+      lbl.appendChild(cb);
+      lbl.appendChild(document.createTextNode(' 完成'));
+      row.appendChild(iw);
+      row.appendChild(ir);
+      row.appendChild(lbl);
+      block.appendChild(row);
+    });
+    c.appendChild(block);
+  });
+  document.getElementById('editLogDialog').classList.add('show');
+}
+function closeEditLogDialog(){
+  document.getElementById('editLogDialog').classList.remove('show');
+}
+async function saveEditLog(){
+  const id = document.getElementById('editLogId').value;
+  const ts = parseInt(document.getElementById('editLogTimestamp').value, 10);
+  const date = document.getElementById('editLogDate').value.trim();
+  const type = document.getElementById('editLogType').value;
+  const labelMap = { push:'推日', pull:'拉日', leg:'腿日' };
+  const label = labelMap[type] || '推日';
+  const exercises = [];
+  document.querySelectorAll('#editLogExContainer .edit-log-ex-block').forEach(block=>{
+    const ni = block.querySelector('.edit-log-ex-name');
+    const name = (ni && ni.value.trim()) ? ni.value.trim() : '动作';
+    const sets = [];
+    block.querySelectorAll('.edit-log-row').forEach(row=>{
+      const nums = row.querySelectorAll('input[type=number]');
+      const w = nums[0] ? nums[0].value : '';
+      const r = nums[1] ? nums[1].value : '';
+      const cb = row.querySelector('input[type=checkbox]');
+      const done = cb ? cb.checked : false;
+      sets.push({ weight: w, reps: r, done });
+    });
+    exercises.push({ name, sets });
+  });
+  if(!date){ showToast('请填写日期'); return; }
+  try {
+    await updateLog(id, {
+      date,
+      timestamp: isNaN(ts) ? Date.now() : ts,
+      type,
+      label,
+      exercises
+    });
+    closeEditLogDialog();
+    await renderHistory();
+    showToast('已保存');
+  }catch(e){
+    const m = (e && e.message) ? String(e.message) : '';
+    showToast(m && m.length < 120 ? ('保存失败: '+m) : '保存失败');
+  }
 }
 
 // ======================== PLAN ========================
 function renderPlan(){
   const ct = document.getElementById('planContent');
-  if(ct.children.length) return;
-  ct.innerHTML = PLAN_SECTIONS.map((s,i)=>`
+  const plan = getPlan();
+  const dayLabels = { push: '推日', pull: '拉日', leg: '腿日' };
+  let editHtml = '<div class="plan-edit-section"><div class="plan-edit-section-title">编辑各日动作</div>';
+  ['push','pull','leg'].forEach(day=>{
+    const exs = plan[day].exercises || [];
+    editHtml += `<div class="plan-edit-day"><div class="plan-edit-day-title">${dayLabels[day]}</div>`;
+    exs.forEach((ex,i)=> {
+      editHtml += `<div class="plan-edit-ex">
+        <span class="plan-edit-ex-name">${ex.name}</span>
+        <span class="plan-edit-ex-meta">${ex.sets}组×${ex.reps||''}</span>
+        <div class="plan-edit-btns">
+          <button class="plan-edit-btn" onclick="openEditExDialog('${day}',${i})">编辑</button>
+          <button class="plan-edit-btn delete" onclick="planDeleteEx('${day}',${i})">删除</button>
+        </div></div>`;
+    });
+    editHtml += `<button class="plan-add-btn" onclick="planAddEx('${day}')">+ 添加动作</button></div>`;
+  });
+  editHtml += '</div>';
+  const sectionsHtml = PLAN_SECTIONS.map((s,i)=>`
     <div class="plan-section">
       <div class="plan-section-title" onclick="togglePlanSection(this)">
         ${s.title}<span class="arrow">›</span>
       </div>
       <div class="plan-section-body">${s.body}</div>
     </div>`).join('');
+  ct.innerHTML = editHtml + sectionsHtml;
+}
+
+function openEditExDialog(day, idx){
+  const plan = getPlan();
+  const ex = plan[day].exercises[idx];
+  document.getElementById('editExDay').value = day;
+  document.getElementById('editExIdx').value = String(idx);
+  document.getElementById('editExName').value = ex.name || '';
+  document.getElementById('editExSets').value = ex.sets ?? 4;
+  document.getElementById('editExReps').value = ex.reps || '';
+  document.getElementById('editExTips').value = ex.tips || '';
+  document.getElementById('editExDialog').classList.add('show');
+}
+function closeEditExDialog(){
+  document.getElementById('editExDialog').classList.remove('show');
+}
+function saveEditEx(){
+  const day = document.getElementById('editExDay').value;
+  const idx = parseInt(document.getElementById('editExIdx').value, 10);
+  const plan = getPlan();
+  plan[day].exercises[idx] = {
+    name: document.getElementById('editExName').value.trim() || '新动作',
+    sets: parseInt(document.getElementById('editExSets').value, 10) || 4,
+    reps: document.getElementById('editExReps').value.trim() || '8-12RM',
+    tips: document.getElementById('editExTips').value.trim() || ''
+  };
+  savePlan(plan);
+  closeEditExDialog();
+  renderPlan();
+  if (currentDay === day) renderTrainContent();
+  showToast('已保存');
+}
+function planDeleteEx(day, idx){
+  if (!confirm('确定删除该动作？')) return;
+  const plan = getPlan();
+  plan[day].exercises.splice(idx, 1);
+  savePlan(plan);
+  renderPlan();
+  if (currentDay === day) renderTrainContent();
+  showToast('已删除');
+}
+function planAddEx(day){
+  const plan = getPlan();
+  plan[day].exercises.push({ name: '新动作', sets: 4, reps: '8-12RM', tips: '' });
+  savePlan(plan);
+  renderPlan();
+  showToast('已添加');
 }
 
 function togglePlanSection(el){
@@ -500,12 +864,25 @@ function togglePlanSection(el){
   arrow.classList.toggle('open');
 }
 
+// ======================== AUTOSAVE DRAFT ========================
+function persistDraftIfTrain(){
+  if (currentDay === 'rest') return;
+  if (!document.getElementById('pageTrain').classList.contains('active')) return;
+  const draft = collectDraftFromForm();
+  if (draft) saveDraft(draft);
+}
+
 // ======================== INIT ========================
 function init(){
+  if (!localStorage.getItem(PLAN_STORAGE_KEY)) savePlan(PLANS);
   const d = new Date();
   document.getElementById('trainDate').textContent =
     d.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
   renderTrainContent();
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden') persistDraftIfTrain();
+  });
+  setInterval(persistDraftIfTrain, 30000);
 }
 init();
 </script>
