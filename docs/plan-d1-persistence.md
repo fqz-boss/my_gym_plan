@@ -39,7 +39,7 @@
 ```
 ┌─────────────────┐     GET /api/logs      ┌──────────────────┐
 │  前端 (Pages)    │ ◄──────────────────►  │  Pages Functions  │
-│  index.html     │     POST /api/logs     │  (Serverless)     │
+│  web/index.html  │     POST /api/logs     │  (Serverless)     │
 │                 │     DELETE /api/logs/:id│                   │
 └─────────────────┘                        └────────┬─────────┘
                                                      │
@@ -51,7 +51,7 @@
                                             └──────────────────┘
 ```
 
-- 静态资源仍由 **Cloudflare Pages** 托管（现有 `index.html`）。
+- 静态资源仍由 **Cloudflare Pages** 托管（H5 在 `web/index.html`；小程序在 `miniprogram/`，另行发布）。
 - **Pages Functions** 提供 3 个 HTTP 接口，运行在 Cloudflare 边缘。
 - **D1** 存所有训练记录，表结构见下。
 
@@ -129,23 +129,22 @@ CREATE INDEX IF NOT EXISTS idx_gym_logs_timestamp ON gym_logs(timestamp DESC);
 
 ```
 my_gym_plan/
-├── index.html              # 现有页面，改调用 API
-├── package.json            # 现有
-├── wrangler.toml           # 新增：D1 与 Pages 绑定
-├── functions/              # 新增：Pages Functions
+├── web/
+│   └── index.html          # H5 页面
+├── miniprogram/            # 微信小程序（微信开发者工具打开本目录）
+├── package.json
+├── wrangler.toml           # D1 与 Pages 绑定，pages_build_output_dir = "web"
+├── functions/              # Pages Functions
 │   └── api/
 │       └── logs/
-│           ├── [[id]].js   # GET 列表 / GET 单条、DELETE 单条（按 id）
-│           └── index.js    # POST 新增
-│   或 单一路由：
-│   └── api/
-│       └── logs.js         # 或 logs/[id].js，根据 wrangler 路由约定
+│           ├── [[id]].js
+│           └── (见实际路由：logs.js 等)
 └── docs/
-    └── plan-d1-persistence.md  # 本文档
+    └── plan-d1-persistence.md
 ```
 
-- **wrangler.toml**：声明 D1 database（`database_name`、`database_id`），以及 Pages 与 D1 的绑定（`[[d1_databases]]`）。
-- **Pages 部署**：`wrangler pages deploy .` 时会把 `functions` 自动当作 Pages Functions 部署，并注入 D1 绑定。
+- **wrangler.toml**：声明 D1 database（`database_name`、`database_id`），以及 Pages 与 D1 的绑定（`[[d1_databases]]`），并指定 `pages_build_output_dir = "web"`。
+- **Pages 部署**：在仓库根目录执行 `wrangler pages deploy web` 时，静态资源来自 `web/`，`functions` 在仓库根目录，会一并作为 Pages Functions 部署并注入 D1 绑定。
 
 ---
 
@@ -187,9 +186,9 @@ wrangler d1 execute my-gym-plan-db --remote --file=./schema.sql
 
 1. 在 Cloudflare 创建 D1 数据库，本地写好 `schema.sql` 并执行建表。
 2. 在项目里添加 `wrangler.toml`，配置 Pages + D1 绑定。
-3. 实现 `functions/api/logs` 三个接口（GET / POST / DELETE），本地用 `wrangler pages dev` 调试。
+3. 实现 `functions/api/logs` 三个接口（GET / POST / DELETE），本地用 `wrangler pages dev web` 调试。
 4. 前端改为调用 `/api/logs`，去掉对 localStorage 的读写，删除改为按 `id`。
-5. 部署：`wrangler pages deploy .`，在控制台确认 D1 已绑定到 Pages 项目。
+5. 部署：`wrangler pages deploy web`，在控制台确认 D1 已绑定到 Pages 项目。
 6. 可选：错误提示、加载态、以及是否需要「首次从 localStorage 迁移到 API」的 one-off 逻辑。
 
 ---

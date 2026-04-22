@@ -4,7 +4,8 @@
 
 name = "my-gym-plan"
 compatibility_date = "2024-01-01"
-pages_build_output_dir = "."
+# H5 静态站输出目录；小程序在 miniprogram/，用微信开发者工具打开，不由此部署
+pages_build_output_dir = "web"
 
 [[d1_databases]]
 binding = "DB"

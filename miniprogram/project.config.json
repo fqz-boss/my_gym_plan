@@ -1,0 +1,10 @@
+{
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "appid": "",
+  "projectname": "my-gym-plan",
+  "setting": {
+    "es6": true,
+    "minified": true
+  }
+}

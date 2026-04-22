@@ -81,7 +81,7 @@ npx wrangler d1 execute my-gym-plan-db --remote --file=./schema.sql
 在项目根目录执行：
 
 ```bash
-npx wrangler pages deploy . --project-name my-gym-plan
+npx wrangler pages deploy web --project-name my-gym-plan
 ```
 
 部署完成后访问 **https://my-gym-plan.pages.dev**，完成一次训练并保存，再打开「训练记录」应能看到数据；换设备或清缓存后仍可看到（说明已写入 D1）。
@@ -91,4 +91,4 @@ npx wrangler pages deploy . --project-name my-gym-plan
 ## 故障排查
 
 - **保存/加载失败**：检查 D1 是否已建表、Pages 的 Functions 里是否绑定了 `DB` 且变量名为 `DB`。
-- **本地无法测 API**：需用 `npx wrangler pages dev .` 在本地起带 Functions 的环境，直接打开 `index.html` 无法请求到 `/api/logs`。
+- **本地无法测 API**：需用 `npx wrangler pages dev web` 在本地起带 Functions 的环境，直接双击打开 `web/index.html` 无法请求到 `/api/logs`。
