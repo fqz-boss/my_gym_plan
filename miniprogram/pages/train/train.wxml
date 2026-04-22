@@ -1,0 +1,90 @@
+<view class="page">
+  <view class="page-title">{{trainTitle}}</view>
+  <view class="page-sub">{{trainDate}}</view>
+
+  <view class="day-row">
+    <view class="day-btn {{currentDay==='push' ? 'on-push' : ''}}" data-day="push" bindtap="onSwitchDay">推日</view>
+    <view class="day-btn {{currentDay==='pull' ? 'on-pull' : ''}}" data-day="pull" bindtap="onSwitchDay">拉日</view>
+    <view class="day-btn {{currentDay==='leg' ? 'on-leg' : ''}}" data-day="leg" bindtap="onSwitchDay">腿日</view>
+    <view class="day-btn {{currentDay==='rest' ? 'on-rest' : ''}}" data-day="rest" bindtap="onSwitchDay">休息</view>
+  </view>
+
+  <block wx:if="{{isRest}}">
+    <view class="rest-card">
+      <view class="rest-emo">🧘</view>
+      <view class="rest-h">今日休息</view>
+      <view class="rest-p">可做低强度有氧（散步、瑜伽），促进血液循环与肌肉恢复。充足睡眠，合理饮食，为下一轮训练蓄力。</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="tip-banner" wx:if="{{planColor}}">
+      <view class="tip-dot" style="background:{{planColor}}"></view>
+      <text class="tip-text">训练前请完成10-15分钟热身：有氧5分钟 + 动态拉伸 + 专项热身组</text>
+    </view>
+
+    <view class="ex-card" wx:for="{{exerciseRows}}" wx:for-item="ex" wx:for-index="ei" wx:key="ei">
+      <view class="ex-head">
+        <view class="ex-badge" style="background:{{ex.color}}"></view>
+        <view class="ex-name">{{ex.name}}</view>
+        <view class="ex-meta">{{ex.repsMeta}}</view>
+      </view>
+      <view class="tip-link" data-ei="{{ei}}" bindtap="onToggleTips">{{ex.tipsOpen ? '收起要点' : '查看要点'}}</view>
+      <view class="ex-tips ex-pad" wx:if="{{ex.tipsOpen}}">{{ex.tips}}</view>
+      <view class="ex-pad">
+        <view class="set-row" wx:for="{{ex.sets}}" wx:for-item="row" wx:for-index="si" wx:key="si">
+          <text class="set-label">第{{si + 1}}组</text>
+          <input
+            class="set-input"
+            type="digit"
+            placeholder="0"
+            value="{{row.weight}}"
+            data-ei="{{ei}}"
+            data-si="{{si}}"
+            data-f="weight"
+            bindinput="onSetInput"
+          />
+          <text class="set-unit">kg</text>
+          <input
+            class="set-input"
+            type="number"
+            placeholder="0"
+            value="{{row.reps}}"
+            data-ei="{{ei}}"
+            data-si="{{si}}"
+            data-f="reps"
+            bindinput="onSetInput"
+          />
+          <text class="set-unit">次</text>
+          <view
+            class="set-check {{row.done ? 'on' : ''}}"
+            data-ei="{{ei}}"
+            data-si="{{si}}"
+            bindtap="onToggleDone"
+          >
+            <text class="tick">✓</text>
+          </view>
+        </view>
+        <button class="add-set" data-ei="{{ei}}" bindtap="onAddSet">+ 添加一组</button>
+      </view>
+    </view>
+
+    <view class="tip-banner" style="margin-top:8rpx" wx:if="{{planColor}}">
+      <view class="tip-dot" style="background:{{planColor}}"></view>
+      <text class="tip-text">训练后请完成5-10分钟拉伸：针对今日训练肌群，每部位30-60秒×2组</text>
+    </view>
+    <button class="btn muted" bindtap="onSaveDraft">保存草稿</button>
+    <button class="btn {{btnCls}}" bindtap="onOpenFinish">完成今日训练</button>
+  </block>
+</view>
+
+<view class="mask" wx:if="{{showFinish}}" catchtouchmove="noop" bindtap="onCloseFinish">
+  <view class="dlg" catchtap="noop">
+    <view class="dlg-t">完成今日训练？</view>
+    <view class="dlg-d">训练数据将保存到历史记录</view>
+    <view class="dlg-btns">
+      <button class="dlg-cancel" bindtap="onCloseFinish">取消</button>
+      <button class="dlg-ok" bindtap="onConfirmFinish">确认完成</button>
+    </view>
+  </view>
+</view>

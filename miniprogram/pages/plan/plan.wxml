@@ -1,0 +1,55 @@
+<view class="page">
+  <view class="t1">计划详情</view>
+  <view class="t2">推拉腿3分化增肌计划</view>
+
+  <view class="edit-sec">
+    <view class="edit-h">编辑各日动作</view>
+    <view wx:for="{{days}}" wx:key="key" wx:for-item="d">
+      <view class="day-h">{{d.label}}</view>
+      <view
+        class="ex-line"
+        wx:for="{{plan[d.key].exercises}}"
+        wx:key="index"
+        wx:for-item="ex"
+        wx:for-index="i"
+        wx:key="i"
+      >
+        <view class="ex-n">{{ex.name}}</view>
+        <view class="ex-m">{{ex.sets}}组×{{ex.reps}}</view>
+        <view class="ex-btns">
+          <text data-day="{{d.key}}" data-i="{{i}}" catchtap="onOpenEdit">编辑</text>
+          <text class="del" data-day="{{d.key}}" data-i="{{i}}" catchtap="onDeleteEx">删除</text>
+        </view>
+      </view>
+      <button class="add-bt" data-day="{{d.key}}" bindtap="onAddEx">+ 添加动作</button>
+    </view>
+  </view>
+
+  <view class="ps" wx:for="{{sections}}" wx:for-index="si" wx:key="title" wx:for-item="sec">
+    <view class="ps-h" data-idx="{{si}}" bindtap="onToggleSec">
+      <text>{{sec.title}}</text>
+      <text class="ps-ar {{sec._open ? 'on' : ''}}">›</text>
+    </view>
+    <view class="ps-b {{sec._open ? 'on' : ''}}">
+      <rich-text class="rich" nodes="{{sec.html}}" space="ensp" />
+    </view>
+  </view>
+</view>
+
+<view class="mask" wx:if="{{showEdit}}" catchtouchmove="noop" bindtap="onCloseEdit">
+  <view class="dlg" catchtap="noop">
+    <view class="dlg-t">编辑动作</view>
+    <view class="dl">动作名称</view>
+    <input class="di" value="{{eName}}" bindinput="onEName" placeholder="如：平板杠铃卧推" />
+    <view class="dl">组数</view>
+    <input class="di" type="number" value="{{eSets}}" bindinput="onESets" placeholder="4" />
+    <view class="dl">次数/RM</view>
+    <input class="di" value="{{eReps}}" bindinput="onEReps" placeholder="如 4-6RM" />
+    <view class="dl">执行要点</view>
+    <input class="di" value="{{eTips}}" bindinput="onETips" placeholder="选填" />
+    <view class="dlg-btns">
+      <button class="bc" bindtap="onCloseEdit">取消</button>
+      <button class="bo" bindtap="onSaveEx">保存</button>
+    </view>
+  </view>
+</view>

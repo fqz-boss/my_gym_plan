@@ -1,0 +1,50 @@
+<view class="page" wx:if="{{ready}}">
+  <view class="l">日期</view>
+  <input class="inp" value="{{date}}" placeholder="如 2025/03/26" bindinput="onInputDate" />
+
+  <view class="l">训练日</view>
+  <picker mode="selector" range="{{typeLabels}}" value="{{typeIndex}}" bindchange="onPickType">
+    <view class="picker">{{typeLabels[typeIndex]}}</view>
+  </picker>
+
+  <view class="l">各动作与组数</view>
+  <view class="ex-block" wx:for="{{exercises}}" wx:key="eix" wx:for-item="ex" wx:for-index="eix">
+    <view class="exn">动作名称</view>
+    <input
+      class="inp"
+      style="margin-bottom:8rpx"
+      value="{{ex.name}}"
+      data-eix="{{eix}}"
+      bindinput="onExName"
+    />
+    <view class="row" wx:for="{{ex.sets}}" wx:for-item="s" wx:for-index="six" wx:key="six">
+      <text class="sl">第{{six + 1}}组</text>
+      <input
+        class="si"
+        type="digit"
+        placeholder="kg"
+        value="{{s.weight}}"
+        data-eix="{{eix}}"
+        data-six="{{six}}"
+        data-f="weight"
+        bindinput="onSetInp"
+      />
+      <input
+        class="si"
+        type="number"
+        placeholder="次"
+        value="{{s.reps}}"
+        data-eix="{{eix}}"
+        data-six="{{six}}"
+        data-f="reps"
+        bindinput="onSetInp"
+      />
+      <view class="ch" data-eix="{{eix}}" data-six="{{six}}" bindtap="onToggleSetDone">
+        <text class="ch-t">{{s.done ? '✓' : '○'}}</text> 完成
+      </view>
+    </view>
+  </view>
+
+  <button class="save" bindtap="onSave">保存</button>
+</view>
+<view class="page" wx:else>加载中…</view>

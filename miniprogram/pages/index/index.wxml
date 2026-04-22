@@ -1,5 +1,0 @@
-<view class="page">
-  <view class="title">推拉腿训练计划</view>
-  <view class="desc">在此开发小程序端；H5 位于仓库 <text class="code">web/</text> 目录。</view>
-  <view class="tip">请使用微信开发者工具打开本 <text class="code">miniprogram</text> 目录，并填写 <text class="code">project.config.json</text> 中的 appid。</view>
-</view>

@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="t1">训练记录</view>
+  <view class="t2">查看历史训练数据</view>
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{!logs.length}}">
+    <view>暂无训练记录</view>
+    <view style="margin-top:12rpx">完成一次训练后这里会显示数据</view>
+  </view>
+  <block wx:else>
+    <view class="h-item" wx:for="{{logs}}" wx:key="id" wx:for-item="log" wx:for-index="idx">
+      <view class="h-h" data-idx="{{idx}}" bindtap="onToggleItem">
+        <view class="h-date">{{log.date}}</view>
+        <view class="h-tag {{log.type}}">{{log.label}}</view>
+        <view class="h-ar {{log._open ? 'on' : ''}}">›</view>
+      </view>
+      <view class="h-d {{log._open ? 'on' : ''}}">
+        <block wx:for="{{log.exercises}}" wx:for-item="ex" wx:for-index="eix" wx:key="eix">
+          <view class="h-ex" wx:if="{{ex.sets && ex.sets.length}}">
+            <view class="h-en">{{ex.name}}</view>
+            <view class="h-l" wx:for="{{ex.sets}}" wx:for-item="s" wx:for-index="six" wx:key="six">第{{six+1}}组：{{s.weight || '-'}}kg × {{s.reps || '-'}}次 {{s.done ? '✓' : ''}}</view>
+          </view>
+        </block>
+        <view class="h-act">
+          <text class="h-edit" data-id="{{log.id}}" catchtap="onEdit">编辑</text>
+          <text class="h-del" data-id="{{log.id}}" catchtap="onDelete">删除</text>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>
