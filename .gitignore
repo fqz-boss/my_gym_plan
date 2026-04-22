@@ -1,5 +1,8 @@
 .vercel
 .wrangler
+
+# 微信开发者工具本地配置（可选）
+miniprogram/project.private.config.json
 node_modules
 .DS_Store
 *.log
