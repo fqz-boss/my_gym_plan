@@ -1,6 +1,12 @@
 const { getPlan, getDraft, saveDraft, clearDraft, ensurePlanInit } = require('../../utils/storage.js');
 const { getToday, formatTitleDate } = require('../../utils/helpers.js');
-const { saveLog } = require('../../utils/api.js');
+const { getLogs, saveLog } = require('../../utils/api.js');
+const { buildDashboardData, getDashGreeting } = require('../../utils/stats.js');
+const {
+  extractLastSetsByExerciseName,
+  buildDefaultMatrixFromHistory,
+  applyPrefillToExerciseRows,
+} = require('../../utils/historyPrefill.js');
 
 function buildRows(day) {
   const plan = getPlan()[day];
@@ -39,17 +45,23 @@ Page({
     trainTitle: '推日',
     trainDate: '',
     isRest: false,
-    planColor: '#007AFF',
+    planColor: '#4A90E2',
     btnCls: 'push',
+    cardCls: 'push',
     exerciseRows: [],
     showFinish: false,
+    dashHello: '你好',
+    statWeek: '—',
+    statToday: '推日',
+    statTotal: '—',
   },
   draftTimer: null,
+  _applyToken: 0,
 
   onLoad() {
     ensurePlanInit();
     this.setData({ trainDate: formatTitleDate() });
-    this.rebuild();
+    this.applyDay(this.data.currentDay, { silentPrefillToast: false });
   },
 
   onShow() {
@@ -57,7 +69,9 @@ Page({
       this.draftTimer = setInterval(() => this.persistDraft(), 30000);
     }
     if (this.data.currentDay && this.data.currentDay !== 'rest') {
-      this.rebuild();
+      this.applyDay(this.data.currentDay, { silentPrefillToast: true });
+    } else if (this.data.isRest) {
+      this.loadStatsForDay('rest');
     }
   },
 
@@ -78,45 +92,85 @@ Page({
 
   noop() {},
 
-  rebuild() {
-    this.applyDay(this.data.currentDay);
+  loadStatsForDay(day) {
+    getLogs()
+      .catch(() => [])
+      .then((logs) => {
+        this.setData(buildDashboardData(logs, day));
+      });
   },
 
-  applyDay(day) {
+  applyDay(day, opts) {
+    const silentPrefillToast = (opts && opts.silentPrefillToast) || false;
+    this._applyToken += 1;
+    const token = this._applyToken;
+    this.setData({ trainDate: formatTitleDate() });
+
     if (day === 'rest') {
       this.setData({
         currentDay: day,
         isRest: true,
         trainTitle: '休息日',
-        exerciseRows: [],
         planColor: '',
         btnCls: 'push',
+        cardCls: 'rest',
+        exerciseRows: [],
+        dashHello: getDashGreeting(),
+        statToday: '休息',
       });
+      this.loadStatsForDay('rest');
       return;
     }
     const plan = getPlan()[day];
     if (!plan) return;
     const exerciseRows = buildRows(day);
+    const hasDraft = !!getDraft();
     this.setData({
       currentDay: day,
       isRest: false,
       trainTitle: plan.label,
       planColor: plan.color,
       btnCls: plan.cls,
+      cardCls: plan.cls,
       exerciseRows,
+      dashHello: getDashGreeting(),
+      ...buildDashboardData([], day),
     });
+
+    getLogs()
+      .catch(() => [])
+      .then((logs) => {
+        if (token !== this._applyToken || this.data.currentDay !== day) return;
+        if (!this.data.isRest && this.data.currentDay === day) {
+          const nameToSets = extractLastSetsByExerciseName(logs, day);
+          const matrix = buildDefaultMatrixFromHistory(plan.exercises, nameToSets);
+          const rows = JSON.parse(JSON.stringify(this.data.exerciseRows));
+          const filled = applyPrefillToExerciseRows(rows, matrix);
+          this.setData({
+            exerciseRows: rows,
+            ...buildDashboardData(logs, day),
+          });
+          if (filled > 0 && !getDraft() && !hasDraft && !silentPrefillToast) {
+            wx.showToast({
+              title: '已根据历史记录预填重量/次数，练完打勾即可',
+              icon: 'none',
+              duration: 2800,
+            });
+          }
+        }
+      });
   },
 
   onSwitchDay(e) {
-    const day = e.currentTarget.dataset.day;
-    this.applyDay(day);
+    const d = e.currentTarget.dataset.day;
+    this.applyDay(d, { silentPrefillToast: false });
   },
 
   onToggleTips(e) {
     const ei = e.currentTarget.dataset.ei;
-    const key = `exerciseRows[${ei}].tipsOpen`;
+    const k = `exerciseRows[${ei}].tipsOpen`;
     const cur = this.data.exerciseRows[ei].tipsOpen;
-    this.setData({ [key]: !cur });
+    this.setData({ [k]: !cur });
   },
 
   onSetInput(e) {
@@ -128,17 +182,25 @@ Page({
 
   onToggleDone(e) {
     const { ei, si } = e.currentTarget.dataset;
-    const key = `exerciseRows[${ei}].sets[${si}].done`;
+    const k = `exerciseRows[${ei}].sets[${si}].done`;
     const cur = this.data.exerciseRows[ei].sets[si].done;
-    this.setData({ [key]: !cur });
+    const next = !cur;
+    this.setData({ [k]: next });
+    if (next) {
+      try {
+        wx.vibrateShort({ type: 'light' });
+      } catch (err) {}
+    }
   },
 
   onAddSet(e) {
     const ei = e.currentTarget.dataset.ei;
-    const key = `exerciseRows[${ei}].sets`;
     const sets = this.data.exerciseRows[ei].sets.slice();
-    sets.push({ weight: '', reps: '', done: false });
-    this.setData({ [key]: sets });
+    const prev = sets[sets.length - 1];
+    const nw = (prev && prev.weight) || '';
+    const nr = (prev && prev.reps) || '';
+    sets.push({ weight: nw, reps: nr, done: false });
+    this.setData({ [`exerciseRows[${ei}].sets`]: sets });
   },
 
   persistDraft() {
@@ -203,7 +265,7 @@ Page({
     saveLog(record)
       .then(() => {
         clearDraft();
-        this.applyDay(currentDay);
+        this.applyDay(currentDay, { silentPrefillToast: true });
         wx.showToast({ title: '训练已保存', icon: 'success' });
       })
       .catch((e) => {

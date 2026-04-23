@@ -2,7 +2,7 @@ const PLANS = {
   push: {
     label: '推日',
     sub: '胸 · 肩前中束 · 肱三头肌',
-    color: '#007AFF',
+    color: '#4A90E2',
     cls: 'push',
     exercises: [
       { name: '平板杠铃卧推', sets: 4, reps: '4-6RM', tips: '沉肩收肩胛，杠铃下落至乳头位置，推起时不锁肘，核心全程绷紧' },
@@ -17,7 +17,7 @@ const PLANS = {
   pull: {
     label: '拉日',
     sub: '背阔肌 · 斜方肌 · 肱二头肌',
-    color: '#34C759',
+    color: '#7FB3FF',
     cls: 'pull',
     exercises: [
       { name: '传统硬拉', sets: 4, reps: '4-6RM', tips: '沉肩收肩胛，腰背全程挺直，屈髋屈膝同步发力，杠铃贴紧腿上下' },
@@ -32,7 +32,7 @@ const PLANS = {
   leg: {
     label: '腿日',
     sub: '股四头肌 · 腘绳肌 · 臀大肌 · 核心',
-    color: '#FF9500',
+    color: '#5AE0C3',
     cls: 'leg',
     exercises: [
       { name: '杠铃颈后深蹲', sets: 4, reps: '4-6RM', tips: '双脚与肩同宽，脚尖微外展，蹲至大腿与地面平行，膝盖与脚尖方向一致' },

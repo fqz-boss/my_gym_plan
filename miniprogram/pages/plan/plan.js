@@ -1,5 +1,17 @@
 const { getPlan, savePlan } = require('../../utils/storage.js');
 const { PLAN_SECTIONS } = require('../../utils/defaults.js');
+const { movePlanExercise } = require('../../utils/planReorder.js');
+
+function hitTestToIndex(rects, y) {
+  if (!rects || !rects.length) return 0;
+  const last = rects[rects.length - 1];
+  if (y >= last.bottom) return rects.length;
+  for (let i = 0; i < rects.length; i += 1) {
+    const r = rects[i];
+    if (y < r.top + r.height / 2) return i;
+  }
+  return rects.length - 1;
+}
 
 Page({
   data: {
@@ -19,6 +31,31 @@ Page({
     eTips: '',
   },
   noop() {},
+
+  onDragStart(e) {
+    this._drag = { day: e.currentTarget.dataset.day, from: e.currentTarget.dataset.i };
+  },
+  onDragMove() {},
+  onDragEnd(e) {
+    if (!this._drag) return;
+    const { day, from } = this._drag;
+    this._drag = null;
+    if (!e.changedTouches || !e.changedTouches.length) return;
+    const y = e.changedTouches[0].clientY;
+    const fromIdx = parseInt(from, 10);
+    if (isNaN(fromIdx)) return;
+    const q = wx.createSelectorQuery().in(this);
+    q.selectAll(`#list-${day} .plan-ex-row`).boundingClientRect();
+    q.exec((res) => {
+      const rects = res[0];
+      if (!rects || !rects.length) return;
+      const to = hitTestToIndex(rects, y);
+      if (movePlanExercise(day, fromIdx, to)) {
+        this.setData({ plan: getPlan() });
+      }
+    });
+  },
+
   onLoad() {
     this.refreshPlan();
     const sections = PLAN_SECTIONS.map((s) => ({

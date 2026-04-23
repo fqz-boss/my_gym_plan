@@ -2,96 +2,136 @@
   padding: 0 32rpx 48rpx;
   min-height: 100vh;
   box-sizing: border-box;
+  padding-top: 12rpx;
+  padding-top: max(8rpx, env(safe-area-inset-top));
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1rpx solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 5rpx 20rpx rgba(0, 0, 0, 0.08);
+  border-radius: 22rpx;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .t1 {
-  font-size: 64rpx;
-  font-weight: 700;
-  padding: 32rpx 0 8rpx;
+  font-size: 50rpx;
+  font-weight: 800;
+  color: #1a1a1a;
+  padding: 20rpx 0 6rpx;
+  letter-spacing: -1rpx;
 }
 .t2 {
   font-size: 26rpx;
-  color: #8e8e93;
-  margin-bottom: 32rpx;
+  color: #7a8a9a;
+  font-weight: 500;
+  margin-bottom: 28rpx;
 }
 .empty {
   text-align: center;
-  color: #8e8e93;
-  font-size: 30rpx;
+  color: #7a8a9a;
+  font-size: 28rpx;
   padding: 80rpx 0;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .h-item {
-  background: #fff;
-  border-radius: 20rpx;
   margin-bottom: 20rpx;
   overflow: hidden;
+  transition: transform 0.15s ease;
 }
 .h-h {
   display: flex;
   align-items: center;
-  padding: 28rpx 32rpx;
-  gap: 16rpx;
+  padding: 24rpx 32rpx;
+  gap: 12rpx;
 }
 .h-date {
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: 800;
   flex: 1;
+  color: #1a1a1a;
 }
 .h-tag {
-  font-size: 24rpx;
-  font-weight: 600;
-  padding: 6rpx 20rpx;
-  border-radius: 32rpx;
+  font-size: 20rpx;
+  font-weight: 800;
+  padding: 8rpx 18rpx;
+  border-radius: 20rpx;
   color: #fff;
+  letter-spacing: 0.4rpx;
 }
-.h-tag.push { background: #007aff; }
-.h-tag.pull { background: #34c759; }
-.h-tag.leg { background: #ff9500; }
+.h-tag.push {
+  background: linear-gradient(145deg, #4a90e2, #3a7bc8);
+  box-shadow: 0 2rpx 8rpx rgba(74, 144, 226, 0.35);
+}
+.h-tag.pull {
+  background: linear-gradient(145deg, #7fb3ff, #5a9ae8);
+  box-shadow: 0 2rpx 8rpx rgba(127, 179, 255, 0.35);
+}
+.h-tag.leg {
+  background: linear-gradient(145deg, #5ae0c3, #3bc4a8);
+  box-shadow: 0 2rpx 8rpx rgba(94, 224, 195, 0.35);
+}
 .h-ar {
-  font-size: 32rpx;
-  color: #8e8e93;
-  transition: transform 0.2s;
+  font-size: 30rpx;
+  color: #7a8a9a;
+  font-weight: 800;
+  transition: transform 0.25s ease;
 }
 .h-ar.on {
   transform: rotate(90deg);
 }
 .h-d {
-  padding: 0 32rpx 24rpx;
+  padding: 0 32rpx 20rpx;
   display: none;
 }
 .h-d.on {
   display: block;
+  animation: fIn 0.22s ease;
 }
-.h-ex { margin-bottom: 16rpx; }
+@keyframes fIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.h-ex {
+  margin-bottom: 14rpx;
+}
 .h-en {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #3c3c43;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #4a5568;
   margin-bottom: 4rpx;
 }
 .h-l {
-  font-size: 24rpx;
-  color: #8e8e93;
+  font-size: 22rpx;
+  color: #7a8a9a;
   line-height: 1.8;
+  font-variant-numeric: tabular-nums;
 }
 .h-act {
   display: flex;
-  border-top: 1rpx solid rgba(60, 60, 67, 0.1);
+  border-top: 1rpx solid rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.2);
 }
 .h-act text {
   flex: 1;
   padding: 20rpx 32rpx;
   text-align: center;
-  font-size: 26rpx;
-  font-weight: 500;
+  font-size: 24rpx;
+  font-weight: 800;
 }
-.h-edit { color: #007aff; }
-.h-del { color: #ff3b30; }
+.h-edit {
+  color: #4a90e2;
+}
+.h-del {
+  color: #e85d5d;
+}
 
 .loading {
   text-align: center;
-  color: #8e8e93;
+  color: #7a8a9a;
   padding: 40rpx;
+  font-weight: 500;
 }

@@ -1,16 +1,80 @@
-<view class="page">
-  <view class="page-title">{{trainTitle}}</view>
-  <view class="page-sub">{{trainDate}}</view>
+<view class="train-root">
+  <view class="dash-hd" wx:if="{{!isRest}}">
+    <view class="dash-row">
+      <view class="dash-av" aria-hidden="true">
+        <view class="dash-av-inner">
+          <view class="dash-dumb r1" />
+          <view class="dash-dumb r2" />
+          <view class="dash-dumb bar" />
+        </view>
+      </view>
+      <view class="dash-txt">
+        <view class="dash-hello">{{dashHello}}</view>
+        <view class="dash-sub">{{trainDate}}</view>
+      </view>
+    </view>
+    <view class="stats-row">
+      <view class="stat-gl">
+        <text class="stat-n">{{statWeek}}</text>
+        <text class="stat-lb">本周</text>
+      </view>
+      <view class="stat-gl">
+        <text class="stat-n">{{statToday}}</text>
+        <text class="stat-lb">今日</text>
+      </view>
+      <view class="stat-gl">
+        <text class="stat-n">{{statTotal}}</text>
+        <text class="stat-lb">总计</text>
+      </view>
+    </view>
+    <view class="pill-row">
+      <text class="pill">PUSH</text>
+      <text class="pill">PULL</text>
+      <text class="pill">LEGS</text>
+    </view>
+  </view>
 
-  <view class="day-row">
-    <view class="day-btn {{currentDay==='push' ? 'on-push' : ''}}" data-day="push" bindtap="onSwitchDay">推日</view>
-    <view class="day-btn {{currentDay==='pull' ? 'on-pull' : ''}}" data-day="pull" bindtap="onSwitchDay">拉日</view>
-    <view class="day-btn {{currentDay==='leg' ? 'on-leg' : ''}}" data-day="leg" bindtap="onSwitchDay">腿日</view>
-    <view class="day-btn {{currentDay==='rest' ? 'on-rest' : ''}}" data-day="rest" bindtap="onSwitchDay">休息</view>
+  <view class="dash-hd rest-dash" wx:if="{{isRest}}">
+    <view class="dash-row">
+      <view class="dash-av">
+        <view class="dash-av-inner">
+          <view class="dash-dumb r1" />
+          <view class="dash-dumb r2" />
+          <view class="dash-dumb bar" />
+        </view>
+      </view>
+      <view class="dash-txt">
+        <view class="dash-hello">{{dashHello}}</view>
+        <view class="dash-sub">{{trainDate}}</view>
+      </view>
+    </view>
+    <view class="stats-row">
+      <view class="stat-gl">
+        <text class="stat-n">{{statWeek}}</text>
+        <text class="stat-lb">本周</text>
+      </view>
+      <view class="stat-gl">
+        <text class="stat-n">休息</text>
+        <text class="stat-lb">今日</text>
+      </view>
+      <view class="stat-gl">
+        <text class="stat-n">{{statTotal}}</text>
+        <text class="stat-lb">总计</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="page-t">{{trainTitle}}</view>
+
+  <view class="day-sel">
+    <view class="d-btn {{currentDay==='push' ? 'ac-push' : ''}}" data-day="push" bindtap="onSwitchDay">推日</view>
+    <view class="d-btn {{currentDay==='pull' ? 'ac-pull' : ''}}" data-day="pull" bindtap="onSwitchDay">拉日</view>
+    <view class="d-btn {{currentDay==='leg' ? 'ac-leg' : ''}}" data-day="leg" bindtap="onSwitchDay">腿日</view>
+    <view class="d-btn {{currentDay==='rest' ? 'ac-rest' : ''}}" data-day="rest" bindtap="onSwitchDay">休息</view>
   </view>
 
   <block wx:if="{{isRest}}">
-    <view class="rest-card">
+    <view class="rest glass">
       <view class="rest-emo">🧘</view>
       <view class="rest-h">今日休息</view>
       <view class="rest-p">可做低强度有氧（散步、瑜伽），促进血液循环与肌肉恢复。充足睡眠，合理饮食，为下一轮训练蓄力。</view>
@@ -18,24 +82,24 @@
   </block>
 
   <block wx:else>
-    <view class="tip-banner" wx:if="{{planColor}}">
-      <view class="tip-dot" style="background:{{planColor}}"></view>
-      <text class="tip-text">训练前请完成10-15分钟热身：有氧5分钟 + 动态拉伸 + 专项热身组</text>
+    <view class="tip-banner glass tip--{{cardCls}}">
+      <view class="tip-d" />
+      <text class="tip-tx">训练前请完成10-15分钟热身：有氧5分钟 + 动态拉伸 + 专项热身组</text>
     </view>
 
-    <view class="ex-card" wx:for="{{exerciseRows}}" wx:for-item="ex" wx:for-index="ei" wx:key="ei">
-      <view class="ex-head">
-        <view class="ex-badge" style="background:{{ex.color}}"></view>
+    <view class="ex-card glass ex--{{cardCls}}" wx:for="{{exerciseRows}}" wx:for-item="ex" wx:for-index="ei" wx:key="ei">
+      <view class="ex-head" data-ei="{{ei}}" catchtap="onToggleTips">
+        <view class="ex-bd" />
         <view class="ex-name">{{ex.name}}</view>
         <view class="ex-meta">{{ex.repsMeta}}</view>
       </view>
-      <view class="tip-link" data-ei="{{ei}}" bindtap="onToggleTips">{{ex.tipsOpen ? '收起要点' : '查看要点'}}</view>
-      <view class="ex-tips ex-pad" wx:if="{{ex.tipsOpen}}">{{ex.tips}}</view>
-      <view class="ex-pad">
-        <view class="set-row" wx:for="{{ex.sets}}" wx:for-item="row" wx:for-index="si" wx:key="si">
-          <text class="set-label">第{{si + 1}}组</text>
+      <view class="ex-more" data-ei="{{ei}}" catchtap="onToggleTips">{{ex.tipsOpen ? '收起要点' : '查看要点'}}</view>
+      <view class="ex-tip" wx:if="{{ex.tipsOpen}}">{{ex.tips}}</view>
+      <view class="ex-sets">
+        <view class="s-row" wx:for="{{ex.sets}}" wx:for-item="row" wx:for-index="si" wx:key="si">
+          <text class="s-lb">第{{si + 1}}组</text>
           <input
-            class="set-input"
+            class="s-inp"
             type="digit"
             placeholder="0"
             value="{{row.weight}}"
@@ -43,10 +107,11 @@
             data-si="{{si}}"
             data-f="weight"
             bindinput="onSetInput"
+            catchtap="noop"
           />
-          <text class="set-unit">kg</text>
+          <text class="s-ut">kg</text>
           <input
-            class="set-input"
+            class="s-inp"
             type="number"
             placeholder="0"
             value="{{row.reps}}"
@@ -54,37 +119,38 @@
             data-si="{{si}}"
             data-f="reps"
             bindinput="onSetInput"
+            catchtap="noop"
           />
-          <text class="set-unit">次</text>
+          <text class="s-ut">次</text>
           <view
-            class="set-check {{row.done ? 'on' : ''}}"
+            class="s-ck {{row.done ? 'ok' : ''}}"
             data-ei="{{ei}}"
             data-si="{{si}}"
-            bindtap="onToggleDone"
+            catchtap="onToggleDone"
           >
-            <text class="tick">✓</text>
+            <text class="tick" wx:if="{{row.done}}">✓</text>
           </view>
         </view>
-        <button class="add-set" data-ei="{{ei}}" bindtap="onAddSet">+ 添加一组</button>
+        <button class="add-s" data-ei="{{ei}}" bindtap="onAddSet">+ 添加一组</button>
       </view>
     </view>
 
-    <view class="tip-banner" style="margin-top:8rpx" wx:if="{{planColor}}">
-      <view class="tip-dot" style="background:{{planColor}}"></view>
-      <text class="tip-text">训练后请完成5-10分钟拉伸：针对今日训练肌群，每部位30-60秒×2组</text>
+    <view class="tip-banner glass tip--{{cardCls}} tip-m">
+      <view class="tip-d" />
+      <text class="tip-tx">训练后请完成5-10分钟拉伸：针对今日训练肌群，每部位30-60秒×2组</text>
     </view>
-    <button class="btn muted" bindtap="onSaveDraft">保存草稿</button>
-    <button class="btn {{btnCls}}" bindtap="onOpenFinish">完成今日训练</button>
+    <button class="fin-sec" bindtap="onSaveDraft">保存草稿</button>
+    <button class="fin {{btnCls}}" bindtap="onOpenFinish">完成今日训练</button>
   </block>
 </view>
 
 <view class="mask" wx:if="{{showFinish}}" catchtouchmove="noop" bindtap="onCloseFinish">
-  <view class="dlg" catchtap="noop">
-    <view class="dlg-t">完成今日训练？</view>
-    <view class="dlg-d">训练数据将保存到历史记录</view>
-    <view class="dlg-btns">
-      <button class="dlg-cancel" bindtap="onCloseFinish">取消</button>
-      <button class="dlg-ok" bindtap="onConfirmFinish">确认完成</button>
+  <view class="dia glass-d" catchtap="noop">
+    <view class="dia-tt">完成今日训练？</view>
+    <view class="dia-s">训练数据将保存到历史记录</view>
+    <view class="dia-bn">
+      <button class="dia-b can" bindtap="onCloseFinish">取消</button>
+      <button class="dia-b ok" bindtap="onConfirmFinish">确认完成</button>
     </view>
   </view>
 </view>

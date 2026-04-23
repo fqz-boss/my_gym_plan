@@ -7,7 +7,7 @@
     <view style="margin-top:12rpx">完成一次训练后这里会显示数据</view>
   </view>
   <block wx:else>
-    <view class="h-item" wx:for="{{logs}}" wx:key="id" wx:for-item="log" wx:for-index="idx">
+    <view class="h-item glass" wx:for="{{logs}}" wx:key="id" wx:for-item="log" wx:for-index="idx">
       <view class="h-h" data-idx="{{idx}}" bindtap="onToggleItem">
         <view class="h-date">{{log.date}}</view>
         <view class="h-tag {{log.type}}">{{log.label}}</view>

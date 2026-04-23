@@ -1,6 +1,7 @@
 page {
-  background: #f2f2f7;
-  color: #000;
+  min-height: 100%;
+  background: linear-gradient(165deg, #eef3f8 0%, #e6eef6 50%, #dce6f2 100%);
+  color: #1a1a1a;
   font-size: 16px;
   box-sizing: border-box;
 }
