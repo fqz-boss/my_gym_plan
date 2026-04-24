@@ -1,50 +1,95 @@
-<view class="page" wx:if="{{ready}}">
-  <view class="l">日期</view>
-  <input class="inp" value="{{date}}" placeholder="如 2025/03/26" bindinput="onInputDate" />
+<view class="train-root" wx:if="{{ready}}">
+  <view class="page-t">{{viewTitle}}</view>
 
-  <view class="l">训练日</view>
-  <picker mode="selector" range="{{typeLabels}}" value="{{typeIndex}}" bindchange="onPickType">
-    <view class="picker">{{typeLabels[typeIndex]}}</view>
-  </picker>
-
-  <view class="l">各动作与组数</view>
-  <view class="ex-block" wx:for="{{exercises}}" wx:key="eix" wx:for-item="ex" wx:for-index="eix">
-    <view class="exn">动作名称</view>
+  <view class="le-date glass">
+    <view class="le-date-lb">训练日期</view>
     <input
-      class="inp"
-      style="margin-bottom:8rpx"
-      value="{{ex.name}}"
-      data-eix="{{eix}}"
-      bindinput="onExName"
+      class="le-date-inp"
+      value="{{date}}"
+      placeholder="如 2026/04/22"
+      bindinput="onInputDate"
     />
-    <view class="row" wx:for="{{ex.sets}}" wx:for-item="s" wx:for-index="six" wx:key="six">
-      <text class="sl">第{{six + 1}}组</text>
+  </view>
+
+  <view class="le-date glass">
+    <view class="le-date-lb">训练日</view>
+    <picker mode="selector" range="{{typeLabels}}" value="{{typeIndex}}" bindchange="onPickType">
+      <view class="le-type-pick">
+        <text class="le-type-tx">{{viewTitle}}</text>
+        <view class="le-type-chev" />
+      </view>
+    </picker>
+  </view>
+
+  <view
+    class="ex-card glass ex--{{cardCls}}"
+    wx:for="{{exercises}}"
+    wx:for-item="ex"
+    wx:for-index="eix"
+    wx:key="eix"
+  >
+    <view class="ex-head">
+      <view class="ex-ico ex-ico--{{cardCls}}" aria-hidden="true">
+        <view class="ex-ico-inner">
+          <image class="ex-ico-img" src="{{ex.icon}}" mode="aspectFit" />
+        </view>
+      </view>
       <input
-        class="si"
-        type="digit"
-        placeholder="kg"
-        value="{{s.weight}}"
+        class="ex-name ex-name-inp"
+        value="{{ex.name}}"
         data-eix="{{eix}}"
-        data-six="{{six}}"
-        data-f="weight"
-        bindinput="onSetInp"
+        bindinput="onExName"
+        placeholder="动作名称"
+        catchtap="noop"
       />
-      <input
-        class="si"
-        type="number"
-        placeholder="次"
-        value="{{s.reps}}"
-        data-eix="{{eix}}"
-        data-six="{{six}}"
-        data-f="reps"
-        bindinput="onSetInp"
-      />
-      <view class="ch" data-eix="{{eix}}" data-six="{{six}}" bindtap="onToggleSetDone">
-        <text class="ch-t">{{s.done ? '✓' : '○'}}</text> 完成
+    </view>
+    <view class="ex-sets">
+      <view
+        class="s-row"
+        wx:for="{{ex.sets}}"
+        wx:for-item="s"
+        wx:for-index="six"
+        wx:key="six"
+      >
+        <text class="s-lb">第{{six + 1}}组</text>
+        <input
+          class="s-inp"
+          type="digit"
+          placeholder="0"
+          value="{{s.weight}}"
+          data-eix="{{eix}}"
+          data-six="{{six}}"
+          data-f="weight"
+          bindinput="onSetInp"
+          catchtap="noop"
+        />
+        <text class="s-ut">kg</text>
+        <input
+          class="s-inp"
+          type="number"
+          placeholder="0"
+          value="{{s.reps}}"
+          data-eix="{{eix}}"
+          data-six="{{six}}"
+          data-f="reps"
+          bindinput="onSetInp"
+          catchtap="noop"
+        />
+        <text class="s-ut">次</text>
+        <view
+          class="s-ck {{s.done ? 'ok' : ''}}"
+          data-eix="{{eix}}"
+          data-six="{{six}}"
+          catchtap="onToggleSetDone"
+        >
+          <text wx:if="{{s.done}}">✓</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <button class="save" bindtap="onSave">保存</button>
+  <button class="fin {{cardCls}}" bindtap="onSave">保存</button>
 </view>
-<view class="page" wx:else>加载中…</view>
+<view class="train-root" wx:else>
+  <view class="le-loading">加载中…</view>
+</view>

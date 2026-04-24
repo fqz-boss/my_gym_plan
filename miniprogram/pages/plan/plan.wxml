@@ -3,36 +3,51 @@
   <view class="t2">推拉腿3分化增肌计划</view>
 
   <view class="edit-sec glass">
-    <view class="edit-h">编辑各日动作</view>
-    <view class="edit-hint">按住左侧把手拖动排序，可一次拖到任意位置，与「今日训练」一致</view>
-    <view wx:for="{{days}}" wx:key="key" wx:for-item="d">
-      <view class="day-h">{{d.label}}</view>
-      <view id="list-{{d.key}}" class="plan-list">
-        <view
-          class="ex-line plan-ex-row"
-          wx:for="{{plan[d.key].exercises}}"
-          wx:for-item="ex"
-          wx:for-index="i"
-          wx:key="i"
-        >
-          <view
-            class="drag-h"
-            data-day="{{d.key}}"
-            data-i="{{i}}"
-            catchtouchstart="onDragStart"
-            catchtouchend="onDragEnd"
-            catchtouchmove="onDragMove"
-          >⋮</view>
-          <view class="ex-n">{{ex.name}}</view>
-          <view class="ex-m">{{ex.sets}}组×{{ex.reps}}</view>
-          <view class="ex-btns">
-            <text data-day="{{d.key}}" data-i="{{i}}" catchtap="onOpenEdit">编辑</text>
-            <text class="del" data-day="{{d.key}}" data-i="{{i}}" catchtap="onDeleteEx">删除</text>
-          </view>
-        </view>
-      </view>
-      <button class="add-bt" data-day="{{d.key}}" bindtap="onAddEx">+ 添加动作</button>
+    <view class="edit-sec-t {{!editSecOpen ? 'is-collapsed' : ''}}" bindtap="onToggleEditSec">
+      <text class="edit-txt">编辑各日动作</text>
+      <text class="edit-sec-ar {{editSecOpen ? 'on' : ''}}">›</text>
     </view>
+    <block wx:if="{{editSecOpen}}">
+      <view class="edit-hint">按住左侧把手拖动排序，可一次拖到任意位置，与「今日训练」一致</view>
+      <view wx:for="{{days}}" wx:key="key" wx:for-item="d">
+        <view class="day-h" bindtap="onToggleDayExpand" data-day="{{d.key}}">
+          <text class="day-lb">{{d.label}}</text>
+          <text class="day-ar {{d.open ? 'on' : ''}}">›</text>
+        </view>
+        <block wx:if="{{d.open}}">
+          <view id="list-{{d.key}}" class="plan-list">
+            <view
+              class="ex-line plan-ex-row"
+              wx:for="{{plan[d.key].exercises}}"
+              wx:for-item="ex"
+              wx:for-index="i"
+              wx:key="i"
+            >
+              <view
+                class="drag-h"
+                data-day="{{d.key}}"
+                data-i="{{i}}"
+                catchtouchstart="onDragStart"
+                catchtouchend="onDragEnd"
+                catchtouchmove="onDragMove"
+              >⋮</view>
+              <view class="ex-ico ex-ico--{{d.key}}" aria-hidden="true">
+                <view class="ex-ico-inner">
+                  <image class="ex-ico-img" src="{{ex.icon}}" mode="aspectFit" />
+                </view>
+              </view>
+              <view class="ex-n">{{ex.name}}</view>
+              <view class="ex-m">{{ex.sets}}组×{{ex.reps}}</view>
+              <view class="ex-btns">
+                <text data-day="{{d.key}}" data-i="{{i}}" catchtap="onOpenEdit">编辑</text>
+                <text class="del" data-day="{{d.key}}" data-i="{{i}}" catchtap="onDeleteEx">删除</text>
+              </view>
+            </view>
+          </view>
+          <button class="add-bt" data-day="{{d.key}}" bindtap="onAddEx">+ 添加动作</button>
+        </block>
+      </view>
+    </block>
   </view>
 
   <view class="ps glass" wx:for="{{sections}}" wx:for-index="si" wx:key="title" wx:for-item="sec">
@@ -56,7 +71,15 @@
     <view class="dl">次数/RM</view>
     <input class="di" value="{{eReps}}" bindinput="onEReps" placeholder="如 4-6RM" />
     <view class="dl">执行要点</view>
-    <input class="di" value="{{eTips}}" bindinput="onETips" placeholder="选填" />
+    <textarea
+      class="di di--tips"
+      value="{{eTips}}"
+      bindinput="onETips"
+      placeholder="选填"
+      auto-height
+      show-confirm-bar="{{false}}"
+      maxlength="800"
+    />
     <view class="dlg-bn">
       <button class="d-bc" bindtap="onCloseEdit">取消</button>
       <button class="d-ok" bindtap="onSaveEx">保存</button>

@@ -1,0 +1,1404 @@
+/* —— 饮食规划：iOS / Keep —— 去边框、白底 + 0 2px 8px @0.04、层级与节奏 —— */
+.diet.diet-page {
+  --d-sp-1: 7rpx;
+  --d-sp-2: 14rpx;
+  --d-sp-3: 22rpx;
+  --d-sp-4: 29rpx;
+  --d-sp-5: 36rpx;
+  --d-green: #16a34a;
+  --d-green-mid: #22c55e;
+  --d-text: #0f172a;
+  --d-text-mute: #6b7280;
+  --d-page-bg: #f7f8fa;
+  --d-radius-card: 29rpx;
+  /* 0 2px 8px rgba(0,0,0,0.04) */
+  --d-sh: 0 4rpx 14rpx rgba(0, 0, 0, 0.04);
+  --d-sh-hover: 0 7rpx 25rpx rgba(0, 0, 0, 0.07);
+  --d-sh-tap: 0 2rpx 9rpx rgba(0, 0, 0, 0.05);
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 25rpx var(--d-sp-4) var(--d-sp-4);
+  padding-bottom: calc(var(--d-sp-5) + env(safe-area-inset-bottom));
+  background: var(--d-page-bg);
+}
+
+.diet-surface {
+  background: #ffffff;
+  border: none;
+  border-radius: var(--d-radius-card);
+  box-shadow: var(--d-sh);
+  box-sizing: border-box;
+}
+
+.diet-hero {
+  margin-bottom: 32rpx;
+  padding: 4rpx 0 0;
+}
+.diet-hero__title {
+  display: block;
+  font-size: 47rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  letter-spacing: -1.1rpx;
+  line-height: 1.12;
+}
+.diet-hero__sub {
+  display: block;
+  margin-top: 11rpx;
+  font-size: 22rpx;
+  color: #8e8e93;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.diet-date {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32rpx;
+  padding: 20rpx 25rpx;
+  gap: var(--d-sp-2);
+}
+.diet-date__nav {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: var(--d-sp-1) var(--d-sp-2);
+  border-radius: 18rpx;
+  min-width: 0;
+  flex-shrink: 0;
+}
+.diet-date__nav--press {
+  background: #f0f1f3;
+  opacity: 0.95;
+}
+.diet-date__nav--next {
+  flex-direction: row;
+}
+.diet-date__chev {
+  font-size: 29rpx;
+  color: var(--d-green-mid);
+  font-weight: 700;
+  line-height: 1;
+}
+.diet-date__nav-tx {
+  font-size: 22rpx;
+  color: var(--d-green);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.diet-date__center {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: var(--d-sp-1) var(--d-sp-2);
+  border-radius: 18rpx;
+}
+.diet-date__center--press {
+  background: #f0f1f3;
+}
+.diet-date__label {
+  font-size: 29rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3rpx;
+}
+
+.diet-body {
+  margin-bottom: 32rpx;
+  padding: 24rpx 25rpx 22rpx;
+}
+.diet-body__title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  margin-bottom: 8rpx;
+  letter-spacing: -0.2rpx;
+}
+.diet-body__hint {
+  display: block;
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #8e8e93;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+.diet-body__settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14rpx;
+  padding: 8rpx 0;
+}
+.diet-body__settings-link {
+  font-size: 20rpx;
+  color: #16a34a;
+  font-weight: 600;
+}
+.diet-body__settings-chev {
+  font-size: 28rpx;
+  color: #16a34a;
+  font-weight: 600;
+  line-height: 1;
+}
+.diet-body__row1 {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 16rpx;
+  flex-wrap: wrap;
+  margin-bottom: 12rpx;
+}
+.diet-body__field {
+  flex: 1;
+  min-width: 180rpx;
+}
+.diet-body__lbl {
+  display: block;
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #8e8e93;
+  margin-bottom: 6rpx;
+}
+.diet-body__inp {
+  width: 100%;
+  height: 58rpx;
+  padding: 0 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--d-text);
+  background: #f2f2f7;
+  border-radius: 12rpx;
+  box-sizing: border-box;
+}
+.diet-body__goals {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  flex-shrink: 0;
+  max-width: 100%;
+  justify-content: flex-end;
+}
+.diet-body__g {
+  padding: 10rpx 18rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--d-text-mute);
+  background: #f2f2f7;
+  border-radius: 12rpx;
+  box-sizing: border-box;
+}
+.diet-body__g--on {
+  color: #ffffff;
+  background: var(--d-green);
+}
+.diet-body__out {
+  margin-top: 6rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #f0f1f3;
+}
+.diet-body__out-line {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4rpx;
+}
+.diet-body__out-k {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #8e8e93;
+}
+.diet-body__out-v {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  font-variant-numeric: tabular-nums;
+}
+.diet-body__out-v--kcal {
+  color: var(--d-green);
+}
+.diet-body__out-small {
+  display: block;
+  font-size: 18rpx;
+  line-height: 1.35;
+  color: #8e8e93;
+  margin-bottom: 12rpx;
+}
+.diet-body__macros {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+.diet-body__cell {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 12rpx 4rpx;
+  background: #f2f2f7;
+  border-radius: 10rpx;
+  box-sizing: border-box;
+}
+.diet-body__m-l {
+  display: block;
+  font-size: 18rpx;
+  color: #8e8e93;
+  font-weight: 600;
+  margin-bottom: 2rpx;
+}
+.diet-body__m-v {
+  display: block;
+  font-size: 25rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  font-variant-numeric: tabular-nums;
+}
+.diet-body__empty {
+  padding: 4rpx 0 0;
+}
+.diet-body__empty-tx {
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #8e8e93;
+  font-weight: 500;
+}
+
+/* 摄入总览 */
+.diet-summary {
+  margin-bottom: 32rpx;
+  padding: 27rpx 25rpx 20rpx;
+}
+.diet-summary__top {
+  margin-bottom: 18rpx;
+}
+.diet-summary__head {
+  display: block;
+}
+.diet-summary__t {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #8e8e93;
+  margin-bottom: 7rpx;
+  letter-spacing: 0.3rpx;
+}
+.diet-summary__cur {
+  display: inline;
+  font-size: 43rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: -0.9rpx;
+}
+.diet-summary__slash {
+  display: inline;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #8e8e93;
+  font-variant-numeric: tabular-nums;
+}
+.diet-summary__hint {
+  display: block;
+  margin-top: var(--d-sp-2);
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #ca8a04;
+}
+.diet-summary__track {
+  height: 11rpx;
+  border-radius: 899rpx;
+  background: #edeff2;
+  overflow: hidden;
+  margin-bottom: var(--d-sp-3);
+}
+.diet-summary__fill {
+  height: 100%;
+  border-radius: 899rpx;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  transition: width 0.35s ease;
+  min-width: 0;
+}
+.diet-summary__fill--over {
+  background: linear-gradient(90deg, #4ade80 0%, #22c55e 55%, #15803d 100%);
+}
+.diet-summary__row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 11rpx;
+  padding-top: 0;
+  margin-top: 4rpx;
+}
+.diet-summary__m {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 13rpx 5rpx;
+  background: #f2f2f7;
+  border: none;
+  border-radius: 14rpx;
+  box-sizing: border-box;
+}
+.diet-summary__m-ic {
+  display: none;
+}
+.diet-summary__m-l {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #8e8e93;
+  line-height: 1.2;
+  margin-bottom: 2rpx;
+}
+.diet-summary__m-sub {
+  display: block;
+  font-size: 16rpx;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #aeaeb2;
+  margin-bottom: 4rpx;
+}
+.diet-summary__m-compare {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  line-height: 1.2;
+}
+.diet-summary__m-from {
+  font-size: 25rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  font-variant-numeric: tabular-nums;
+}
+.diet-summary__m-join {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #c7c7cc;
+  padding: 0 2rpx;
+}
+.diet-summary__m-to {
+  font-size: 25rpx;
+  font-weight: 800;
+  color: var(--d-green);
+  font-variant-numeric: tabular-nums;
+}
+.diet-summary__m-v {
+  font-size: 25rpx;
+  font-weight: 700;
+  color: var(--d-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.diet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 36rpx;
+}
+
+.diet-meal {
+  padding: 0 0 5rpx;
+  overflow: visible;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.diet-meal--press {
+  transform: scale(0.99);
+  box-shadow: var(--d-sh-hover);
+  opacity: 0.98;
+}
+.diet-meal__head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 22rpx 9rpx;
+  box-sizing: border-box;
+  border-bottom: none;
+}
+.diet-meal__left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18rpx;
+  flex: 1;
+  min-width: 0;
+}
+.diet-meal__icon-h {
+  width: 86rpx;
+  height: 86rpx;
+  border-radius: 22rpx;
+  background: #f2f2f7;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+}
+.diet-meal__icon {
+  font-size: 50rpx;
+  line-height: 1;
+}
+.diet-meal__title-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.diet-meal__name {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: var(--d-text);
+  line-height: 1.2;
+  letter-spacing: -0.4rpx;
+}
+.diet-meal__time {
+  font-size: 20rpx;
+  color: #8e8e93;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.diet-meal__right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4rpx;
+  flex-shrink: 0;
+  margin-left: 11rpx;
+}
+.diet-meal__kcal-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4rpx;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.diet-meal__kcal {
+  font-size: 23rpx; /* 约再小 20% */
+  font-weight: 600;
+  color: var(--d-green);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.2rpx;
+}
+.diet-meal__kcal-unit {
+  font-size: 23rpx;
+  font-weight: 600;
+  color: var(--d-green);
+  opacity: 0.95;
+  line-height: 1;
+}
+.diet-meal__ar {
+  font-size: 36rpx;
+  color: #c7c7cc;
+  font-weight: 300;
+  line-height: 1;
+  margin-left: 2rpx;
+}
+
+/* 3 列 grid；整体约再小 20% */
+.diet-foods {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 14rpx 14rpx;
+}
+.diet-foods__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.diet-foods__cell {
+  min-width: 0;
+  box-sizing: border-box;
+}
+.diet-foods__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+  background: #ffffff;
+  border: none;
+  border-radius: 18rpx;
+  min-height: 158rpx;
+  height: auto;
+  padding: 10rpx 8rpx 8rpx;
+  box-shadow: var(--d-sh);
+  box-sizing: border-box;
+  min-width: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  justify-content: flex-end;
+}
+.diet-foods__draggable {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 0 2rpx 0;
+  margin-bottom: 2rpx;
+}
+.diet-foods__qtyrow {
+  align-self: flex-end;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4rpx;
+  padding: 2rpx 2rpx 2rpx 6rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 8rpx;
+  box-shadow: 0 1rpx 6rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e5e7eb;
+  box-sizing: border-box;
+}
+.diet-foods__qtynum {
+  min-width: 22rpx;
+  text-align: center;
+  font-size: 16rpx;
+  font-weight: 800;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.diet-foods__qtyadd {
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 30rpx;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #fff;
+  background: #16a34a;
+  border-radius: 6rpx;
+  box-sizing: border-box;
+}
+.diet-foods__qtyadd:active {
+  opacity: 0.88;
+}
+.diet-foods__card--press {
+  transform: scale(0.97);
+  box-shadow: var(--d-sh-tap);
+  opacity: 0.95;
+}
+.diet-foods__sq {
+  position: relative;
+  width: 40rpx;
+  height: 40rpx;
+  max-width: 47rpx;
+  max-height: 47rpx;
+  margin: 0 auto 9rpx;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.diet-foods__ph {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 5rpx;
+  background: #ffffff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: none;
+  overflow: hidden;
+}
+.diet-foods__emoji {
+  display: block;
+  font-size: 29rpx;
+  line-height: 1;
+  max-width: 47rpx;
+  max-height: 47rpx;
+  overflow: hidden;
+}
+.diet-foods__name {
+  font-size: 18rpx;
+  font-weight: 500;
+  color: var(--d-text);
+  line-height: 1.2;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+}
+.diet-foods__amt {
+  width: 100%;
+  margin-top: 2rpx;
+  font-size: 14rpx;
+  font-weight: 500;
+  color: #8e8e93;
+  line-height: 1.25;
+  max-height: 2.5em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+}
+.diet-foods__kline {
+  margin-top: 2rpx;
+  font-size: 18rpx;
+  font-weight: 500;
+  color: var(--d-green);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  opacity: 0.95;
+}
+.diet-foods__empty {
+  width: 100%;
+  padding: 22rpx 14rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+.diet-foods__empty-tx {
+  font-size: 18rpx;
+  color: #8e8e93;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* —— 食物池弹窗（沿用原结构，与页变量主色一致） —— */
+.diet-fp {
+  --fp-canvas: #f2f2f7;
+  --fp-card: #ffffff;
+  --fp-primary: #16a34a;
+  --fp-primary-weak: #ecfdf3;
+  --fp-text: #0f172a;
+  --fp-text-2: #64748b;
+  --fp-radius: 11rpx;
+  --fp-radius-sm: 9rpx;
+  --fp-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.04);
+  --fp-shadow-lg: 0 7rpx 29rpx rgba(0, 0, 0, 0.08);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 43rpx 29rpx;
+  padding-top: calc(36rpx + env(safe-area-inset-top));
+  padding-bottom: calc(36rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+.diet-fp__backdrop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(15, 40, 30, 0.32);
+  z-index: 0;
+  animation: diet-fp-fade 0.28s ease-out;
+}
+@keyframes diet-fp-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.diet-fp__sheet {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  max-height: 82vh;
+  height: auto;
+  min-height: 0;
+  background: var(--fp-canvas);
+  border-radius: 18rpx;
+  box-shadow: var(--fp-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: diet-fp-pop 0.3s ease-out;
+}
+@keyframes diet-fp-pop {
+  from { transform: translateY(11rpx) scale(0.98); opacity: 0.94; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.diet-fp__head {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18rpx 14rpx 11rpx;
+  background: var(--fp-card);
+  box-sizing: border-box;
+}
+.diet-fp__head-text {
+  flex: 1;
+  min-width: 0;
+}
+.diet-fp__h-title {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--fp-text);
+  letter-spacing: -0.4rpx;
+  line-height: 1.3;
+}
+.diet-fp__h-sub {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 15rpx;
+  color: var(--fp-text-2);
+  line-height: 1.4;
+  font-weight: 400;
+}
+.diet-fp__close {
+  width: 36rpx;
+  height: 36rpx;
+  margin-left: 7rpx;
+  flex-shrink: 0;
+  line-height: 36rpx;
+  text-align: center;
+  font-size: 25rpx;
+  font-weight: 300;
+  color: #64748b;
+  border-radius: 10rpx;
+  background: #f1f5f3;
+}
+.diet-fp__search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 7rpx;
+  margin: 0 13rpx 7rpx;
+  padding: 0 13rpx;
+  min-height: 45rpx;
+  background: var(--fp-card);
+  border-radius: 13rpx;
+  box-shadow: var(--fp-shadow);
+  box-sizing: border-box;
+}
+.diet-fp__search-icon {
+  font-size: 18rpx;
+  line-height: 1;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.diet-fp__search-inp {
+  flex: 1;
+  min-width: 0;
+  min-height: 45rpx;
+  font-size: 18rpx;
+  color: var(--fp-text);
+}
+.diet-fp__body {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 56vh;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0 5rpx 0 4rpx;
+  box-sizing: border-box;
+  gap: 0;
+}
+.diet-fp__nav {
+  width: 110rpx;
+  flex-shrink: 0;
+  min-height: 0;
+  max-height: 56vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--fp-canvas);
+  box-sizing: border-box;
+  padding: 0 0 2rpx;
+}
+.diet-fp__cat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6rpx;
+  padding: 14rpx 8rpx;
+  margin: 0 0 3rpx;
+  border-radius: var(--fp-radius-sm);
+  box-sizing: border-box;
+}
+.diet-fp__cat--on {
+  background: var(--fp-card);
+  box-shadow: var(--fp-shadow);
+  padding-left: 8rpx;
+}
+.diet-fp__cat-ic {
+  font-size: 22rpx;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.diet-fp__cat-tx {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: var(--fp-text-2);
+  line-height: 1.2;
+  flex: 1;
+  min-width: 0;
+}
+.diet-fp__cat--on .diet-fp__cat-tx {
+  color: var(--fp-text);
+}
+.diet-fp__main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  max-height: 56vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--fp-canvas);
+  box-sizing: border-box;
+  padding: 0 4rpx 0 2rpx;
+  border-radius: 0 10rpx 0 0;
+}
+.diet-fp__grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: 0 -2.7rpx;
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+.diet-fp__cell {
+  width: 25%;
+  box-sizing: border-box;
+  padding: 3rpx;
+}
+.diet-fp__sq {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;
+  box-sizing: border-box;
+}
+.diet-fp__card {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  background: var(--fp-card);
+  border-radius: var(--fp-radius);
+  border: none;
+  box-shadow: var(--fp-shadow);
+  padding: 4rpx 2rpx 2rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.diet-fp__card--press {
+  transform: scale(0.97);
+  box-shadow: 0 2rpx 9rpx rgba(0, 0, 0, 0.05);
+  opacity: 0.95;
+}
+.diet-fp__card--on {
+  background: var(--fp-primary-weak);
+  box-shadow: 0 0 0 2rpx var(--fp-primary), var(--fp-shadow);
+}
+.diet-fp__qtyrow {
+  position: absolute;
+  bottom: 2rpx;
+  right: 2rpx;
+  top: auto;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 3rpx;
+  padding: 1rpx 1rpx 1rpx 4rpx;
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 6rpx;
+  box-shadow: 0 1rpx 5rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #e5e7eb;
+  box-sizing: border-box;
+}
+.diet-fp__qtynum {
+  min-width: 20rpx;
+  text-align: center;
+  font-size: 11rpx;
+  font-weight: 800;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.diet-fp__qtyadd {
+  min-width: 24rpx;
+  height: 24rpx;
+  line-height: 22rpx;
+  text-align: center;
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #fff;
+  background: var(--fp-primary);
+  border-radius: 4rpx;
+  box-sizing: border-box;
+}
+.diet-fp__qtyadd:active {
+  opacity: 0.88;
+}
+.diet-fp__card-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2rpx;
+  width: 100%;
+  padding: 0 2rpx 18rpx;
+  box-sizing: border-box;
+}
+.diet-fp__card-ic {
+  font-size: 30rpx;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.diet-fp__card-nm {
+  font-size: 15rpx;
+  font-weight: 600;
+  color: var(--fp-text);
+  line-height: 1.25;
+  max-height: 2.5em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+  width: 100%;
+}
+.diet-fp__card-k {
+  font-size: 14rpx;
+  color: #64748b;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.diet-fp__card--on .diet-fp__card-k {
+  color: #15803d;
+}
+.diet-fp__empty {
+  width: 100%;
+  padding: 31rpx 14rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+.diet-fp__empty-tx {
+  font-size: 15rpx;
+  color: var(--fp-text-2);
+  line-height: 1.5;
+}
+.diet-fp__footer {
+  flex-shrink: 0;
+  background: var(--fp-card);
+  padding: 4rpx 9rpx 4rpx;
+  padding-bottom: calc(4rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -3.6rpx 18rpx rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  border-top: none;
+  margin-top: 0;
+}
+.diet-fp__sum {
+  font-size: 22rpx;
+  color: var(--fp-text-2);
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 5rpx;
+}
+.diet-fp__sum-b {
+  font-weight: 700;
+  color: var(--fp-text);
+  font-variant-numeric: tabular-nums;
+}
+.diet-fp__bot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10rpx;
+}
+.diet-fp__tags {
+  min-width: 0;
+  box-sizing: border-box;
+  width: 100%;
+}
+.diet-fp__tags-in {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7rpx 9rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.diet-fp__tag {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4rpx 6rpx;
+  padding: 6rpx 8rpx 6rpx 6rpx;
+  background: #f3f4f6;
+  border-radius: 11rpx;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.diet-fp__tag-txt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+.diet-fp__tag-tx {
+  font-size: 20rpx;
+  color: var(--fp-text);
+  font-weight: 500;
+  line-height: 1.3;
+  word-break: break-all;
+  white-space: normal;
+  max-width: 100%;
+}
+.diet-fp__tag-qty {
+  font-size: 16rpx;
+  color: #64748b;
+  line-height: 1.2;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.diet-fp__tag-minus,
+.diet-fp__tag-plus {
+  flex-shrink: 0;
+  width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #15803d;
+  background: #ecfdf3;
+  border-radius: 6rpx;
+  box-sizing: border-box;
+}
+.diet-fp__tag-x {
+  font-size: 20rpx;
+  line-height: 1;
+  color: #94a3b8;
+  font-weight: 500;
+  padding: 0 0 0 2rpx;
+  flex-shrink: 0;
+  margin-left: 2rpx;
+}
+.diet-fp__cta {
+  align-self: flex-end;
+  margin: 0;
+  padding: 0 20rpx;
+  min-width: 120rpx;
+  height: 49rpx;
+  line-height: 49rpx;
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #ffffff !important;
+  background: var(--fp-primary) !important;
+  border-radius: 9rpx;
+  border: none;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  box-shadow: 0 2rpx 7rpx rgba(22, 163, 74, 0.3);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.diet-fp__cta::after {
+  display: none;
+  border: none;
+}
+.diet-fp__cta--down {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* 食物说明（选餐/三餐里长按） */
+.diet-fd {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 28rpx;
+  padding-top: calc(32rpx + env(safe-area-inset-top));
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+.diet-fd__backdrop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(15, 23, 30, 0.38);
+  z-index: 0;
+}
+.diet-fd__sheet {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.diet-fd__head {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 22rpx 22rpx 12rpx;
+  border-bottom: 1rpx solid #f0f1f3;
+  gap: 12rpx;
+  box-sizing: border-box;
+}
+.diet-fd__head-txt {
+  flex: 1;
+  min-width: 0;
+}
+.diet-fd__title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+}
+.diet-fd__cat {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  color: #6b7280;
+  font-weight: 500;
+}
+.diet-fd__close {
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 40rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #94a3b8;
+  border-radius: 12rpx;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+.diet-fd__body {
+  flex: 1;
+  min-height: 0;
+  max-height: 58vh;
+  padding: 16rpx 22rpx 24rpx;
+  box-sizing: border-box;
+}
+.diet-fd__row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
+}
+.diet-fd__row--col {
+  flex-direction: column;
+  gap: 6rpx;
+}
+.diet-fd__k {
+  flex-shrink: 0;
+  width: 6em;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 22rpx;
+}
+.diet-fd__v {
+  flex: 1;
+  min-width: 0;
+  color: #0f172a;
+  font-weight: 500;
+  font-size: 24rpx;
+  word-break: break-word;
+}
+.diet-fd__macro {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10rpx;
+  margin: 8rpx 0 20rpx;
+  padding: 16rpx 12rpx;
+  background: #f8fafc;
+  border-radius: 14rpx;
+  box-sizing: border-box;
+}
+.diet-fd__mcell {
+  min-width: 20%;
+  flex: 1;
+  text-align: center;
+}
+.diet-fd__mv {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.diet-fd__ml {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 18rpx;
+  color: #94a3b8;
+  font-weight: 500;
+}
+.diet-fd__adv {
+  margin-top: 4rpx;
+  padding: 16rpx 16rpx;
+  background: #f0fdf4;
+  border-radius: 14rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #bbf7d0;
+}
+.diet-fd__adv-t {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 800;
+  color: #14532d;
+  margin-bottom: 8rpx;
+}
+.diet-fd__adv-b {
+  display: block;
+  font-size: 22rpx;
+  line-height: 1.55;
+  color: #1e293b;
+  font-weight: 500;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 拖到底部删除 */
+.diet-mdel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4500;
+  min-height: 120rpx;
+  padding: 20rpx 24rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(254, 242, 242, 0.97) 28%, #fef2f2 100%);
+  border-top: 2rpx solid #fecaca;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.diet-mdel--hot {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(254, 226, 226, 0.98) 20%, #fee2e2 100%);
+  border-top-color: #f87171;
+}
+.diet-mdel__ic {
+  font-size: 32rpx;
+  line-height: 1;
+}
+.diet-mdel__tx {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #b91c1c;
+  letter-spacing: 0.3rpx;
+}
+.diet-mdel--hot .diet-mdel__tx {
+  color: #991b1b;
+  font-size: 26rpx;
+}
+.diet-mghost {
+  position: fixed;
+  z-index: 4600;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+  max-width: 70%;
+  padding: 12rpx 18rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 28rpx rgba(0, 0, 0, 0.16);
+  border: 2rpx solid #16a34a;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.diet-mghost__ic {
+  font-size: 32rpx;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.diet-mghost__txt {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rpx;
+}
+.diet-mghost__nm {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.diet-mghost__k {
+  font-size: 18rpx;
+  color: #16a34a;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

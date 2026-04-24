@@ -1,3 +1,5 @@
+@import '../../styles/exercise-icon.wxss';
+
 .page {
   padding: 0 32rpx 48rpx;
   min-height: 100vh;
@@ -98,11 +100,18 @@
 .h-ex {
   margin-bottom: 14rpx;
 }
+.h-ex-hd {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 4rpx;
+}
 .h-en {
+  flex: 1;
+  min-width: 0;
   font-size: 24rpx;
   font-weight: 800;
   color: #4a5568;
-  margin-bottom: 4rpx;
 }
 .h-l {
   font-size: 22rpx;

@@ -1,0 +1,436 @@
+<wxs module="fpSel">
+  var qty = function (map, id) {
+    if (!map || !id) return 0;
+    var v = map[id];
+    if (v === true) return 1;
+    var n = v * 1;
+    if (n > 0) return n;
+    return 0;
+  }
+  var cardOn = function (map, id) {
+    return qty(map, id) > 0 ? 'diet-fp__card--on' : '';
+  }
+  module.exports.qty = qty;
+  module.exports.cardOn = cardOn;
+</wxs>
+
+<view class="diet diet-page">
+  <view class="diet-hero">
+    <text class="diet-hero__title">饮食规划</text>
+    <text class="diet-hero__sub">合理搭配三餐，提升训练效果</text>
+  </view>
+
+  <view class="diet-date diet-surface">
+    <view class="diet-date__nav" bindtap="prevDay" hover-class="diet-date__nav--press">
+      <text class="diet-date__chev">‹</text>
+      <text class="diet-date__nav-tx">上一天</text>
+    </view>
+    <view class="diet-date__center" catchtap="onDateTap" hover-class="diet-date__center--press">
+      <text class="diet-date__label">{{displayDate}}</text>
+    </view>
+    <view class="diet-date__nav diet-date__nav--next" bindtap="nextDay" hover-class="diet-date__nav--press">
+      <text class="diet-date__nav-tx">下一天</text>
+      <text class="diet-date__chev">›</text>
+    </view>
+  </view>
+
+  <view class="diet-surface diet-body">
+    <text class="diet-body__title">体重与目标</text>
+    <text class="diet-body__hint"
+      >填写体重后，按目标估算建议热量与宏量。填写完整精算信息可获得更精准的营养建议</text
+    >
+    <view class="diet-body__settings-row" bindtap="onOpenDietSettings">
+      <text class="diet-body__settings-link">去填写身高、年龄、性别与活动量</text>
+      <text class="diet-body__settings-chev">›</text>
+    </view>
+    <view class="diet-body__row1">
+      <view class="diet-body__field">
+        <text class="diet-body__lbl">当前体重(kg)</text>
+        <input
+          class="diet-body__inp"
+          type="digit"
+          placeholder="如 70"
+          value="{{bodyWeight}}"
+          bindinput="onBodyWeightInput"
+        />
+      </view>
+      <view class="diet-body__goals" aria-label="目标类型">
+        <view
+          class="diet-body__g {{bodyGoal === 'cut' ? 'diet-body__g--on' : ''}}"
+          data-goal="cut"
+          bindtap="onBodyGoalChange"
+        >减脂</view>
+        <view
+          class="diet-body__g {{bodyGoal === 'bulk' ? 'diet-body__g--on' : ''}}"
+          data-goal="bulk"
+          bindtap="onBodyGoalChange"
+        >增肌</view>
+        <view
+          class="diet-body__g {{bodyGoal === 'maintain' ? 'diet-body__g--on' : ''}}"
+          data-goal="maintain"
+          bindtap="onBodyGoalChange"
+        >维持</view>
+      </view>
+    </view>
+    <view class="diet-body__out" wx:if="{{hasBodyTarget}}">
+      <view class="diet-body__out-line">
+        <text class="diet-body__out-k">建议热量</text>
+        <text class="diet-body__out-v diet-body__out-v--kcal">{{kcalTarget}} kcal</text>
+      </view>
+      <view class="diet-body__out-small" wx:if="{{dietCalcMode === 'simple'}}"
+        >粗估日消耗 约{{targetMaint}} kcal/日（24× 体重，仅供参考）</view
+      >
+      <view class="diet-body__out-small" wx:elif="{{dietCalcMode === 'advanced'}}"
+        >精算：BMR 约{{dietBmr}} kcal/日，TDEE 约{{dietTdee}} kcal/日</view
+      >
+      <view class="diet-body__macros">
+        <view class="diet-body__cell">
+          <text class="diet-body__m-l">蛋白</text>
+          <text class="diet-body__m-v">{{targetProtein}}g</text>
+        </view>
+        <view class="diet-body__cell">
+          <text class="diet-body__m-l">碳水</text>
+          <text class="diet-body__m-v">{{targetCarbs}}g</text>
+        </view>
+        <view class="diet-body__cell">
+          <text class="diet-body__m-l">脂肪</text>
+          <text class="diet-body__m-v">{{targetFat}}g</text>
+        </view>
+      </view>
+    </view>
+    <view class="diet-body__empty" wx:else>
+      <text class="diet-body__empty-tx">输入 30～250 之间的体重后，会显示建议热量与三大营养素克数。</text>
+    </view>
+  </view>
+
+  <view class="diet-summary diet-surface">
+    <view class="diet-summary__top">
+      <view class="diet-summary__head">
+        <text class="diet-summary__t">今日摄入</text>
+        <text class="diet-summary__cur">{{nutrition.calories}}</text>
+        <text class="diet-summary__slash"> / {{kcalTarget}} kcal</text>
+      </view>
+      <text class="diet-summary__hint" wx:if="{{kcalOver}}">已高于目标，注意总量</text>
+    </view>
+    <view class="diet-summary__track">
+      <view
+        class="diet-summary__fill {{kcalOver ? 'diet-summary__fill--over' : ''}}"
+        style="width: {{kcalBarWidth}}%;"
+      />
+    </view>
+    <view class="diet-summary__row">
+      <view class="diet-summary__m">
+        <text class="diet-summary__m-l">蛋白</text>
+        <text class="diet-summary__m-sub" wx:if="{{hasBodyTarget}}">食物/建议</text>
+        <view class="diet-summary__m-compare" wx:if="{{hasBodyTarget}}">
+          <text class="diet-summary__m-from">{{nutrition.protein}}g</text>
+          <text class="diet-summary__m-join">/</text>
+          <text class="diet-summary__m-to">{{targetProtein}}g</text>
+        </view>
+        <text class="diet-summary__m-v" wx:else>{{nutrition.protein}}g</text>
+      </view>
+      <view class="diet-summary__m">
+        <text class="diet-summary__m-l">碳水</text>
+        <text class="diet-summary__m-sub" wx:if="{{hasBodyTarget}}">食物/建议</text>
+        <view class="diet-summary__m-compare" wx:if="{{hasBodyTarget}}">
+          <text class="diet-summary__m-from">{{nutrition.carbs}}g</text>
+          <text class="diet-summary__m-join">/</text>
+          <text class="diet-summary__m-to">{{targetCarbs}}g</text>
+        </view>
+        <text class="diet-summary__m-v" wx:else>{{nutrition.carbs}}g</text>
+      </view>
+      <view class="diet-summary__m">
+        <text class="diet-summary__m-l">脂肪</text>
+        <text class="diet-summary__m-sub" wx:if="{{hasBodyTarget}}">食物/建议</text>
+        <view class="diet-summary__m-compare" wx:if="{{hasBodyTarget}}">
+          <text class="diet-summary__m-from">{{nutrition.fat}}g</text>
+          <text class="diet-summary__m-join">/</text>
+          <text class="diet-summary__m-to">{{targetFat}}g</text>
+        </view>
+        <text class="diet-summary__m-v" wx:else>{{nutrition.fat}}g</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="diet-list">
+    <view
+      class="diet-surface diet-meal {{meal.type === 'breakfast' ? 'diet-meal--breakfast' : ''}}"
+      wx:for="{{meals}}"
+      wx:for-item="meal"
+      wx:for-index="mi"
+      wx:key="type"
+      data-idx="{{mi}}"
+      bindtap="onMealClick"
+      hover-class="diet-meal--press"
+    >
+      <view class="diet-meal__head">
+        <view class="diet-meal__left">
+          <view class="diet-meal__icon-h" aria-hidden="true">
+            <text class="diet-meal__icon">{{meal.icon}}</text>
+          </view>
+          <view class="diet-meal__title-wrap">
+            <text class="diet-meal__name">{{meal.name}}</text>
+            <text class="diet-meal__time">{{meal.time}}</text>
+          </view>
+        </view>
+        <view class="diet-meal__right">
+          <view class="diet-meal__kcal-wrap">
+            <text class="diet-meal__kcal">{{meal.calories}}</text>
+            <text class="diet-meal__kcal-unit">kcal</text>
+          </view>
+          <text class="diet-meal__ar">›</text>
+        </view>
+      </view>
+      <view class="diet-foods">
+        <view class="diet-foods__grid" wx:if="{{meal.foods.length}}">
+          <view
+            class="diet-foods__cell"
+            wx:for="{{meal.foods}}"
+            wx:for-item="fd"
+            wx:for-index="fi"
+            wx:key="fi"
+            catchtap="noop"
+          >
+            <view
+              class="diet-foods__card"
+              hover-class="diet-foods__card--press"
+              hover-stay-time="60"
+            >
+              <view
+                class="diet-foods__draggable"
+                data-mi="{{mi}}"
+                data-fi="{{fi}}"
+                catchtouchstart="onMealFoodTouchStart"
+                catchtouchmove="onMealFoodTouchMove"
+                catchtouchend="onMealFoodTouchEnd"
+                catchtouchcancel="onMealFoodTouchEnd"
+              >
+                <view class="diet-foods__sq">
+                  <view class="diet-foods__ph">
+                    <text class="diet-foods__emoji" selectable="{{false}}">{{fd.icon}}</text>
+                  </view>
+                </view>
+                <text class="diet-foods__name">{{fd.name}}</text>
+                <text class="diet-foods__amt" wx:if="{{fd.amount}}">{{fd.amount}}</text>
+                <text class="diet-foods__kline" wx:if="{{fd.kcal != null && fd.kcal !== ''}}">{{fd.kcal}} kcal</text>
+              </view>
+              <view class="diet-foods__qtyrow">
+                <text class="diet-foods__qtynum" selectable="{{false}}">{{fd.qty > 0 ? fd.qty : 1}}</text>
+                <view
+                  class="diet-foods__qtyadd"
+                  data-mi="{{mi}}"
+                  data-fi="{{fi}}"
+                  bindtap="onMealFoodQtyInc"
+                >+</view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="diet-foods__empty" wx:else>
+          <text class="diet-foods__empty-tx"
+            >轻触餐次选食物、改份数；已添加：长按松手看说明，长按后拖到底部可删除</text
+          >
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view
+    class="diet-mdel {{mealDeleteZoneHighlight ? 'diet-mdel--hot' : ''}}"
+    wx:if="{{(mealPressReady || mealDragActive) && !fpShow}}"
+  >
+    <text class="diet-mdel__ic" selectable="{{false}}">🗑</text>
+    <text class="diet-mdel__tx"
+      >{{mealDeleteZoneHighlight ? '松开即可删除' : '拖到这里删除'}}</text
+    >
+  </view>
+  <view
+    class="diet-mghost"
+    wx:if="{{mealDragGhost && mealDragActive && !fpShow}}"
+    style="left: {{mealDragGhost.x}}px; top: {{mealDragGhost.y}}px;"
+  >
+    <text class="diet-mghost__ic" selectable="{{false}}">{{mealDragGhost.icon}}</text>
+    <view class="diet-mghost__txt">
+      <text class="diet-mghost__nm">{{mealDragGhost.name}}</text>
+      <text class="diet-mghost__k">{{mealDragGhost.kcal}} kcal</text>
+    </view>
+  </view>
+
+  <view class="diet-fp" wx:if="{{fpShow}}">
+    <view class="diet-fp__backdrop" catchtap="onFpMaskClose" />
+    <view class="diet-fp__sheet" catchtap="noop">
+      <view class="diet-fp__head">
+        <view class="diet-fp__head-text">
+          <text class="diet-fp__h-title">选择「{{fpMealTitle}}」</text>
+          <text class="diet-fp__h-sub"
+            >轻点切换选择；已选可改份数。长按看标准份量、克重与建议。</text
+          >
+        </view>
+        <view class="diet-fp__close" bindtap="onFpMaskClose" aria-label="关闭">×</view>
+      </view>
+
+      <view class="diet-fp__search">
+        <text class="diet-fp__search-icon" aria-hidden="true">🔍</text>
+        <input
+          class="diet-fp__search-inp"
+          value="{{fpSearchText}}"
+          bindinput="onFpSearchInput"
+          confirm-type="search"
+          placeholder="搜索食物"
+        />
+      </view>
+
+      <view class="diet-fp__body">
+        <view class="diet-fp__nav">
+          <view
+            class="diet-fp__cat {{fpCategoryKey === item.key ? 'diet-fp__cat--on' : ''}}"
+            wx:for="{{fpCategories}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onFpCategoryTap"
+          >
+            <text class="diet-fp__cat-ic" selectable="{{false}}">{{item.icon}}</text>
+            <text class="diet-fp__cat-tx">{{item.label}}</text>
+          </view>
+        </view>
+
+        <view class="diet-fp__main">
+          <view class="diet-fp__grid">
+            <view
+              class="diet-fp__cell"
+              wx:for="{{fpFiltered}}"
+              wx:key="id"
+            >
+              <view class="diet-fp__sq">
+                <view
+                  class="diet-fp__card {{fpSel.cardOn(fpSelectedMap, item.id)}}"
+                  hover-class="diet-fp__card--press"
+                >
+                  <view
+                    class="diet-fp__card-main"
+                    data-id="{{item.id}}"
+                    catchtap="onFpToggle"
+                    catchlongpress="onFpFoodLongPress"
+                  >
+                    <text class="diet-fp__card-ic" selectable="{{false}}">{{item._icon}}</text>
+                    <text class="diet-fp__card-nm">{{item.name}}</text>
+                    <text class="diet-fp__card-k" wx:if="{{item._selQty > 0}}"
+                      >{{item.kcal * item._selQty}} kcal</text
+                    >
+                    <text class="diet-fp__card-k" wx:else>{{item.kcal}} kcal/份</text>
+                  </view>
+                  <view class="diet-fp__qtyrow" wx:if="{{item._selQty > 0}}">
+                    <text class="diet-fp__qtynum" selectable="{{false}}">{{item._selQty}}</text>
+                    <view class="diet-fp__qtyadd" data-id="{{item.id}}" bindtap="onFpTagInc">+</view>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view class="diet-fp__empty" wx:if="{{!fpFiltered.length}}">
+              <text class="diet-fp__empty-tx">无匹配食物，换个词或分类试试</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="diet-fp__footer">
+        <view class="diet-fp__sum"
+          >已选 <text class="diet-fp__sum-b">{{fpSelectedCount}}</text> 种 ·
+          <text class="diet-fp__sum-b">{{fpSelectedKcal}}</text> kcal</view
+        >
+        <view class="diet-fp__bot">
+          <view class="diet-fp__tags" wx:if="{{fpSelectedTags.length}}">
+            <view class="diet-fp__tags-in">
+              <view class="diet-fp__tag" wx:for="{{fpSelectedTags}}" wx:key="id">
+                <text class="diet-fp__tag-minus" data-id="{{item.id}}" catchtap="onFpTagDec"
+                  >−</text
+                >
+                <view class="diet-fp__tag-txt">
+                  <text class="diet-fp__tag-tx">{{item.name}} · {{item.kcal}} kcal</text>
+                  <text class="diet-fp__tag-qty">×{{item.qty}} 份</text>
+                </view>
+                <text class="diet-fp__tag-plus" data-id="{{item.id}}" catchtap="onFpTagInc"
+                  >+</text
+                >
+                <text class="diet-fp__tag-x" data-id="{{item.id}}" catchtap="onFpTagRemove"
+                  >×</text
+                >
+              </view>
+            </view>
+          </view>
+          <button
+            class="diet-fp__cta"
+            bindtap="onFpConfirm"
+            hover-class="diet-fp__cta--down"
+          >确定 ({{fpSelectedCount}})</button
+          >
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="diet-fd" wx:if="{{fpDetailShow && fpDetail}}">
+    <view class="diet-fd__backdrop" catchtap="onFpDetailClose" />
+    <view class="diet-fd__sheet" catchtap="noop">
+      <view class="diet-fd__head">
+        <view class="diet-fd__head-txt">
+          <text class="diet-fd__title">{{fpDetail.name}}</text>
+          <text class="diet-fd__cat" wx:if="{{fpDetail.category}}">{{fpDetail.category}}</text>
+        </view>
+        <view class="diet-fd__close" bindtap="onFpDetailClose" aria-label="关闭">×</view>
+      </view>
+      <scroll-view class="diet-fd__body" scroll-y="true">
+        <view class="diet-fd__row">
+          <text class="diet-fd__k">标准份量</text>
+          <text class="diet-fd__v"
+            >{{fpDetail.portion}}<text wx:if="{{fpDetail.portionGrams != null}}">
+              · 单份约 {{fpDetail.portionGrams}}g</text
+            ></text
+          >
+        </view>
+        <view class="diet-fd__row" wx:if="{{fpDetail.qty > 0}}">
+          <text class="diet-fd__k">当前记录</text>
+          <text class="diet-fd__v"
+            >×{{fpDetail.qty}} 份<text wx:if="{{fpDetail.totalGrams != null}}">
+              · 合计约 {{fpDetail.totalGrams}}g</text
+            ></text
+          >
+        </view>
+        <view class="diet-fd__macro">
+          <view class="diet-fd__mcell">
+            <text class="diet-fd__mv">{{fpDetail.kcal}}</text>
+            <text class="diet-fd__ml">kcal</text>
+          </view>
+          <view class="diet-fd__mcell">
+            <text class="diet-fd__mv">P{{fpDetail.protein}}g</text>
+            <text class="diet-fd__ml">蛋白</text>
+          </view>
+          <view class="diet-fd__mcell">
+            <text class="diet-fd__mv">C{{fpDetail.carbs}}g</text>
+            <text class="diet-fd__ml">碳水</text>
+          </view>
+          <view class="diet-fd__mcell">
+            <text class="diet-fd__mv">F{{fpDetail.fat}}g</text>
+            <text class="diet-fd__ml">脂肪</text>
+          </view>
+        </view>
+        <view class="diet-fd__row" wx:if="{{fpDetail.kcalPer100g != null}}">
+          <text class="diet-fd__k">参考能量密度</text>
+          <text class="diet-fd__v">约 {{fpDetail.kcalPer100g}} kcal/100g（按可食部）</text>
+        </view>
+        <view class="diet-fd__row diet-fd__row--col">
+          <text class="diet-fd__k">单份营养（×1 份时）</text>
+          <text class="diet-fd__v"
+            >{{fpDetail.perPortion.kcal}} kcal · 蛋白
+            {{fpDetail.perPortion.protein}}g · 碳水 {{fpDetail.perPortion.carbs}}g · 脂肪
+            {{fpDetail.perPortion.fat}}g</text
+          >
+        </view>
+        <view class="diet-fd__adv">
+          <text class="diet-fd__adv-t">怎么吃更心里有数</text>
+          <text class="diet-fd__adv-b">{{fpDetail.advice}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

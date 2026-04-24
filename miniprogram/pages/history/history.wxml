@@ -16,7 +16,14 @@
       <view class="h-d {{log._open ? 'on' : ''}}">
         <block wx:for="{{log.exercises}}" wx:for-item="ex" wx:for-index="eix" wx:key="eix">
           <view class="h-ex" wx:if="{{ex.sets && ex.sets.length}}">
-            <view class="h-en">{{ex.name}}</view>
+            <view class="h-ex-hd">
+              <view class="ex-ico ex-ico--{{log.type}}">
+                <view class="ex-ico-inner">
+                  <image class="ex-ico-img" src="{{ex.icon}}" mode="aspectFit" />
+                </view>
+              </view>
+              <view class="h-en">{{ex.name}}</view>
+            </view>
             <view class="h-l" wx:for="{{ex.sets}}" wx:for-item="s" wx:for-index="six" wx:key="six">第{{six+1}}组：{{s.weight || '-'}}kg × {{s.reps || '-'}}次 {{s.done ? '✓' : ''}}</view>
           </view>
         </block>

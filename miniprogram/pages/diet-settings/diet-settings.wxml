@@ -1,0 +1,59 @@
+<view class="ds-page">
+  <view class="ds-card ds-surface">
+    <text class="ds-tip">填写完整信息可获得更精准的营养建议</text>
+    <view class="ds-row">
+      <text class="ds-lab">身高 (cm)</text>
+      <input
+        class="ds-inp"
+        type="digit"
+        placeholder="如 170"
+        value="{{height}}"
+        bindinput="onHeightInput"
+      />
+    </view>
+    <view class="ds-row">
+      <text class="ds-lab">年龄</text>
+      <input
+        class="ds-inp"
+        type="number"
+        placeholder="如 30"
+        value="{{age}}"
+        bindinput="onAgeInput"
+      />
+    </view>
+    <view class="ds-row ds-row--gender">
+      <text class="ds-lab">性别</text>
+      <view class="ds-seg">
+        <view
+          class="ds-g {{gender === 'male' ? 'ds-g--on' : ''}}"
+          data-g="male"
+          bindtap="onGenderTap"
+        >男</view>
+        <view
+          class="ds-g {{gender === 'female' ? 'ds-g--on' : ''}}"
+          data-g="female"
+          bindtap="onGenderTap"
+        >女</view>
+      </view>
+    </view>
+    <view class="ds-row ds-row--picker">
+      <text class="ds-lab">活动量</text>
+      <picker
+        class="ds-picker"
+        mode="selector"
+        range="{{activityList}}"
+        range-key="label"
+        value="{{activityIndex}}"
+        bindchange="onActivityChange"
+      >
+        <view class="ds-picker-in">
+          <text class="ds-picker-tx">{{activityList[activityIndex].label}}</text>
+          <text class="ds-picker-chev">▼</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+  <view class="ds-foot">
+    <button class="ds-btn" type="primary" bindtap="onSave">保存</button>
+  </view>
+</view>

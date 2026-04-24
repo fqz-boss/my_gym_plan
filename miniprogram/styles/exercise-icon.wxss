@@ -1,0 +1,39 @@
+/* 动作行前置：统一线框风 SVG，中性玻璃底，与全页风格一致 */
+.ex-ico {
+  flex-shrink: 0;
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ex-ico-inner {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 14rpx;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1rpx solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05), inset 0 0 0 1rpx rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+/* 与训练日色条呼应的极轻染色（可选，三档一致只调透明度） */
+.ex-ico--push .ex-ico-inner {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.75), rgba(74, 144, 226, 0.08));
+}
+.ex-ico--pull .ex-ico-inner {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.75), rgba(127, 179, 255, 0.1));
+}
+.ex-ico--leg .ex-ico-inner {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.75), rgba(90, 224, 195, 0.08));
+}
+.ex-ico-img {
+  width: 30rpx;
+  height: 30rpx;
+  display: block;
+  flex-shrink: 0;
+}

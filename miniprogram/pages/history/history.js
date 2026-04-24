@@ -1,4 +1,5 @@
 const { getLogs, deleteLogById } = require('../../utils/api.js');
+const { exerciseIconPath } = require('../../utils/exerciseIcons.js');
 
 Page({
   data: {
@@ -12,7 +13,14 @@ Page({
     this.setData({ loading: true });
     getLogs()
       .then((raw) => {
-        const logs = (raw || []).map((l) => ({ ...l, _open: false }));
+        const logs = (raw || []).map((l) => ({
+          ...l,
+          _open: false,
+          exercises: (l.exercises || []).map((ex) => ({
+            ...ex,
+            icon: exerciseIconPath(ex.name),
+          })),
+        }));
         this.setData({ loading: false, logs });
       })
       .catch(() => {

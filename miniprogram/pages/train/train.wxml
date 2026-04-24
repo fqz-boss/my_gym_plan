@@ -22,7 +22,7 @@
         <text class="stat-n">{{statToday}}</text>
         <text class="stat-lb">今日</text>
       </view>
-      <view class="stat-gl">
+      <view class="stat-gl stat-tap" hover-class="stat-tap--on" catchtap="onOpenCal">
         <text class="stat-n">{{statTotal}}</text>
         <text class="stat-lb">总计</text>
       </view>
@@ -57,7 +57,7 @@
         <text class="stat-n">休息</text>
         <text class="stat-lb">今日</text>
       </view>
-      <view class="stat-gl">
+      <view class="stat-gl stat-tap" hover-class="stat-tap--on" catchtap="onOpenCal">
         <text class="stat-n">{{statTotal}}</text>
         <text class="stat-lb">总计</text>
       </view>
@@ -88,10 +88,21 @@
     </view>
 
     <view class="ex-card glass ex--{{cardCls}}" wx:for="{{exerciseRows}}" wx:for-item="ex" wx:for-index="ei" wx:key="ei">
-      <view class="ex-head" data-ei="{{ei}}" catchtap="onToggleTips">
-        <view class="ex-bd" />
-        <view class="ex-name">{{ex.name}}</view>
-        <view class="ex-meta">{{ex.repsMeta}}</view>
+      <view class="ex-head">
+        <view class="ex-ico ex-ico--{{cardCls}}" data-ei="{{ei}}" catchtap="onToggleTips">
+          <view class="ex-ico-inner">
+            <image class="ex-ico-img" src="{{ex.icon}}" mode="aspectFit" />
+          </view>
+        </view>
+        <input
+          class="ex-name ex-name-inp"
+          value="{{ex.name}}"
+          placeholder="动作名称"
+          data-ei="{{ei}}"
+          bindinput="onExerciseNameInput"
+          catchtap="noop"
+        />
+        <view class="ex-meta" data-ei="{{ei}}" catchtap="onToggleTips">{{ex.repsMeta}}</view>
       </view>
       <view class="ex-more" data-ei="{{ei}}" catchtap="onToggleTips">{{ex.tipsOpen ? '收起要点' : '查看要点'}}</view>
       <view class="ex-tip" wx:if="{{ex.tipsOpen}}">{{ex.tips}}</view>
@@ -142,6 +153,104 @@
     <button class="fin-sec" bindtap="onSaveDraft">保存草稿</button>
     <button class="fin {{btnCls}}" bindtap="onOpenFinish">完成今日训练</button>
   </block>
+</view>
+
+<view class="cal-mask" wx:if="{{showCal}}" catchtouchmove="noop" bindtap="closeCal">
+  <view class="cal-sheet" catchtap="noop">
+    <view class="cal-hd">
+      <view class="cal-nav" hover-class="cal-nav--down" data-role="nav" catchtap="onPrevCalMonth">
+        <view class="cal-chev cal-chev--l" />
+      </view>
+      <picker
+        class="cal-picker"
+        mode="date"
+        fields="month"
+        value="{{calPickerValue}}"
+        start="2016-01-01"
+        end="{{calPickerEnd}}"
+        bindchange="onCalMonthPick"
+      >
+        <view class="cal-mtitle" hover-class="cal-mtitle--down">
+          <text class="cal-mtext">{{calTitle}}</text>
+          <view class="cal-tt-chev" />
+        </view>
+      </picker>
+      <view
+        class="cal-nav {{calNextDisabled ? 'cal-nav--off' : ''}}"
+        hover-class="cal-nav--down"
+        data-role="nav"
+        catchtap="onNextCalMonth"
+      >
+        <view class="cal-chev" />
+      </view>
+    </view>
+
+    <view class="cal-wkhead" aria-label="周">
+      <text
+        class="cal-wh {{wi === 6 ? 'cal-wh--sun' : ''}}"
+        wx:for="{{calWkNames}}"
+        wx:for-index="wi"
+        wx:key="wi"
+      >{{item}}</text>
+    </view>
+
+    <view class="cal-wk" wx:for="{{calWeeks}}" wx:for-item="wk" wx:for-index="wix" wx:key="wix">
+      <view
+        class="{{cell.dClass}}"
+        wx:for="{{wk}}"
+        wx:for-item="cell"
+        wx:for-index="cix"
+        wx:key="key"
+        data-key="{{!cell.empty ? cell.key : ''}}"
+        data-empty="{{cell.empty ? 1 : 0}}"
+        catchtap="onCalSelectDay"
+      >
+        <view class="cal-d-bounds{{cell.empty ? ' cal-d-bounds--empty' : ''}}">
+          <view wx:if="{{!cell.empty}}" class="cal-d-body">
+            <view
+              class="cal-dn {{cell.key === calSelectedKey ? 'cal-dn--sel' : (cell.isSunday ? 'cal-dn--sun' : 'cal-dn--muted')}}"
+            >{{cell.day}}</view>
+            <view class="cal-tags" wx:if="{{cell.logs && cell.logs.length}}">
+              <view
+                class="cal-tag cal-tag--{{t.cls}}"
+                wx:for="{{cell.logs}}"
+                wx:for-item="t"
+                wx:for-index="li"
+                wx:key="type"
+              >
+                <text class="cal-tag-tx">{{t.short}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="cal-legend" aria-label="图例">
+      <view class="cal-legal">
+        <view class="cal-tag cal-tag--pull">
+          <text class="cal-tag-tx">拉</text>
+        </view>
+        <text class="cal-legtxt">拉练日</text>
+      </view>
+      <view class="cal-legal">
+        <view class="cal-tag cal-tag--push">
+          <text class="cal-tag-tx">推</text>
+        </view>
+        <text class="cal-legtxt">推练日</text>
+      </view>
+      <view class="cal-legal">
+        <view class="cal-tag cal-tag--leg">
+          <text class="cal-tag-tx">腿</text>
+        </view>
+        <text class="cal-legtxt">腿部训练日</text>
+      </view>
+    </view>
+
+    <view class="cal-btrow">
+      <button class="cal-btn-close" bindtap="closeCal">关闭</button>
+    </view>
+  </view>
 </view>
 
 <view class="mask" wx:if="{{showFinish}}" catchtouchmove="noop" bindtap="onCloseFinish">

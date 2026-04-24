@@ -13,14 +13,40 @@ function corsHeaders(origin = '*') {
 }
 
 export async function onRequestGet(context) {
-  const { env } = context;
+  const { env, request } = context;
   if (!env.DB) {
     return new Response(
       JSON.stringify({ error: 'D1 未绑定: 请在 Pages 绑定 DB 变量名 DB，并检查 wrangler.toml 的 database_id' }),
       { status: 503, headers: corsHeaders('*') }
     );
   }
+  let url;
   try {
+    url = new URL(request.url);
+  } catch (e) {
+    url = { searchParams: { get: () => null } };
+  }
+  const lite = url.searchParams.get('lite') === '1' || url.searchParams.get('lite') === 'true';
+  try {
+    if (lite) {
+      const { results } = await env.DB.prepare(
+        'SELECT id, date, timestamp, type, label FROM gym_logs ORDER BY timestamp DESC'
+      ).all();
+      const logs = results.map((row) => ({
+        id: row.id,
+        date: row.date,
+        timestamp: row.timestamp,
+        type: row.type,
+        label: row.label,
+        exercises: [],
+      }));
+      return new Response(JSON.stringify(logs), {
+        status: 200,
+        headers: {
+          ...corsHeaders(request.headers.get('Origin') || '*'),
+        },
+      });
+    }
     const { results } = await env.DB.prepare(
       'SELECT id, date, timestamp, type, label, exercises FROM gym_logs ORDER BY timestamp DESC'
     ).all();

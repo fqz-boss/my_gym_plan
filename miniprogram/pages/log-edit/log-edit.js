@@ -1,4 +1,5 @@
 const { getLogs, updateLog } = require('../../utils/api.js');
+const { exerciseIconPath } = require('../../utils/exerciseIcons.js');
 
 const TYPE_LABELS = ['推日', '拉日', '腿日'];
 const TYPES = ['push', 'pull', 'leg'];
@@ -12,8 +13,11 @@ Page({
     date: '',
     typeIndex: 0,
     typeLabels: TYPE_LABELS,
+    viewTitle: '推日',
+    cardCls: 'push',
     exercises: [],
   },
+  noop() {},
   onLoad(query) {
     const id = query.id;
     if (!id) {
@@ -29,15 +33,20 @@ Page({
         setTimeout(() => wx.navigateBack(), 500);
         return;
       }
-      const ti = TYPES.indexOf(log.type);
+      const _ti = TYPES.indexOf(log.type);
+      const ti = _ti >= 0 ? _ti : 0;
+      const cls = TYPES[ti] || 'push';
       this.setData({
         ready: true,
         id: log.id,
         timestamp: log.timestamp != null ? log.timestamp : Date.now(),
         date: log.date || '',
-        typeIndex: ti >= 0 ? ti : 0,
+        typeIndex: ti,
+        viewTitle: TYPE_LABELS[ti],
+        cardCls: cls,
         exercises: (log.exercises || []).map((ex) => ({
           name: ex.name || '动作',
+          icon: exerciseIconPath(ex.name || '动作'),
           sets: (ex.sets || []).map((s) => ({
             weight: s.weight != null ? String(s.weight) : '',
             reps: s.reps != null ? String(s.reps) : '',
@@ -51,11 +60,21 @@ Page({
     this.setData({ date: e.detail.value });
   },
   onPickType(e) {
-    this.setData({ typeIndex: parseInt(e.detail.value, 10) || 0 });
+    const idx = parseInt(e.detail.value, 10) || 0;
+    const day = TYPES[idx] || 'push';
+    this.setData({
+      typeIndex: idx,
+      cardCls: day,
+      viewTitle: TYPE_LABELS[idx],
+    });
   },
   onExName(e) {
     const eix = e.currentTarget.dataset.eix;
-    this.setData({ [`exercises[${eix}].name`]: e.detail.value });
+    const v = e.detail.value != null ? String(e.detail.value) : '';
+    this.setData({
+      [`exercises[${eix}].name`]: v,
+      [`exercises[${eix}].icon`]: exerciseIconPath(v.trim() ? v : '新动作'),
+    });
   },
   onSetInp(e) {
     const { eix, six, f } = e.currentTarget.dataset;

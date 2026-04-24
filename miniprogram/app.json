@@ -1,23 +1,25 @@
 {
   "pages": [
     "pages/train/train",
+    "pages/diet/index",
     "pages/history/history",
     "pages/plan/plan",
-    "pages/log-edit/log-edit"
+    "pages/log-edit/log-edit",
+    "pages/diet-settings/diet-settings"
   ],
   "window": {
     "navigationBarTitleText": "PPL",
-    "navigationBarBackgroundColor": "#EEF3F8",
+    "navigationBarBackgroundColor": "#F7F8FA",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#EEF3F8"
+    "backgroundColor": "#F7F8FA"
   },
   "tabBar": {
     "color": "#7A8A9A",
-    "selectedColor": "#4A90E2",
+    "selectedColor": "#16A34A",
     "backgroundColor": "rgba(255,255,255,0.92)",
     "list": [
       { "pagePath": "pages/train/train", "text": "训练" },
-      { "pagePath": "pages/history/history", "text": "记录" },
+      { "pagePath": "pages/diet/index", "text": "饮食" },
       { "pagePath": "pages/plan/plan", "text": "计划" }
     ]
   },

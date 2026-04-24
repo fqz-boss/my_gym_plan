@@ -1,4 +1,5 @@
 const { getPlan, savePlan } = require('../../utils/storage.js');
+const { addIconsToPlan } = require('../../utils/exerciseIcons.js');
 const { PLAN_SECTIONS } = require('../../utils/defaults.js');
 const { movePlanExercise } = require('../../utils/planReorder.js');
 
@@ -15,11 +16,12 @@ function hitTestToIndex(rects, y) {
 
 Page({
   data: {
+    editSecOpen: true,
     plan: { push: { exercises: [] }, pull: { exercises: [] }, leg: { exercises: [] } },
     days: [
-      { key: 'push', label: '推日' },
-      { key: 'pull', label: '拉日' },
-      { key: 'leg', label: '腿日' },
+      { key: 'push', label: '推日', open: true },
+      { key: 'pull', label: '拉日', open: true },
+      { key: 'leg', label: '腿日', open: true },
     ],
     sections: [],
     showEdit: false,
@@ -51,7 +53,7 @@ Page({
       if (!rects || !rects.length) return;
       const to = hitTestToIndex(rects, y);
       if (movePlanExercise(day, fromIdx, to)) {
-        this.setData({ plan: getPlan() });
+        this.setData({ plan: addIconsToPlan(getPlan()) });
       }
     });
   },
@@ -69,12 +71,22 @@ Page({
     this.refreshPlan();
   },
   refreshPlan() {
-    this.setData({ plan: getPlan() });
+    this.setData({ plan: addIconsToPlan(getPlan()) });
   },
   onToggleSec(e) {
     const i = e.currentTarget.dataset.idx;
     const k = `sections[${i}]._open`;
     this.setData({ [k]: !this.data.sections[i]._open });
+  },
+  onToggleEditSec() {
+    this.setData({ editSecOpen: !this.data.editSecOpen });
+  },
+  onToggleDayExpand(e) {
+    const key = e.currentTarget.dataset.day;
+    const idx = this.data.days.findIndex((d) => d.key === key);
+    if (idx < 0) return;
+    const k = `days[${idx}].open`;
+    this.setData({ [k]: !this.data.days[idx].open });
   },
   onOpenEdit(e) {
     const day = e.currentTarget.dataset.day;
@@ -116,7 +128,7 @@ Page({
       tips: (eTips && eTips.trim()) || '',
     };
     savePlan(p);
-    this.setData({ showEdit: false, plan: p });
+    this.setData({ showEdit: false, plan: addIconsToPlan(p) });
     wx.showToast({ title: '已保存' });
   },
   onDeleteEx(e) {
@@ -130,7 +142,7 @@ Page({
         const p = getPlan();
         p[day].exercises.splice(i, 1);
         savePlan(p);
-        this.setData({ plan: p });
+        this.setData({ plan: addIconsToPlan(p) });
         wx.showToast({ title: '已删除' });
       },
     });
@@ -140,7 +152,7 @@ Page({
     const p = getPlan();
     p[day].exercises.push({ name: '新动作', sets: 4, reps: '8-12RM', tips: '' });
     savePlan(p);
-    this.setData({ plan: p });
+    this.setData({ plan: addIconsToPlan(p) });
     wx.showToast({ title: '已添加' });
   },
 });

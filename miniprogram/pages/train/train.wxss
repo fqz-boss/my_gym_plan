@@ -1,4 +1,6 @@
 /* Smart Fitness 玻璃风 — 与 web/index 对齐 */
+@import '../../styles/exercise-icon.wxss';
+
 .train-root {
   padding: 0 32rpx 200rpx;
   padding-left: max(32rpx, env(safe-area-inset-left));
@@ -113,6 +115,13 @@
   background: rgba(255, 255, 255, 0.5);
   border: 1rpx solid rgba(255, 255, 255, 0.7);
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05), inset 0 1rpx 0 rgba(255, 255, 255, 0.75);
+}
+.stat-tap {
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.stat-tap--on {
+  opacity: 0.9;
+  transform: scale(0.98);
 }
 .stat-n {
   display: block;
@@ -246,29 +255,24 @@
   padding: 24rpx 30rpx;
   gap: 20rpx;
 }
-.ex-bd {
-  width: 12rpx;
-  height: 12rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.ex--push .ex-bd {
-  background: #4a90e2;
-  box-shadow: 0 0 0 4rpx rgba(74, 144, 226, 0.25);
-}
-.ex--pull .ex-bd {
-  background: #7fb3ff;
-  box-shadow: 0 0 0 4rpx rgba(127, 179, 255, 0.3);
-}
-.ex--leg .ex-bd {
-  background: #5ae0c3;
-  box-shadow: 0 0 0 4rpx rgba(94, 224, 195, 0.28);
-}
 .ex-name {
   flex: 1;
+  min-width: 0;
   font-size: 30rpx;
   font-weight: 800;
   color: #1a1a1a;
+}
+/* 与计划联动：训练页直接改动作名并写回 gym_plan */
+.ex-name-inp {
+  background: transparent;
+  border: none;
+  padding: 0;
+  min-height: 48rpx;
+  line-height: 48rpx;
+}
+.ex-name-inp::placeholder {
+  color: rgba(122, 138, 154, 0.55);
+  font-weight: 600;
 }
 .ex-meta {
   font-size: 22rpx;
@@ -501,4 +505,380 @@
   color: #fff;
   background: linear-gradient(145deg, #4a90e2, #3a7bc8);
   box-shadow: 0 4rpx 14rpx rgba(74, 144, 226, 0.35);
+}
+
+/* 月历弹层 — 居中 / iOS 感 / 主色 #3B82F6 等 */
+.cal-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 201;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx 32rpx;
+  padding-top: max(32rpx, env(safe-area-inset-top));
+  padding-bottom: max(32rpx, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.cal-sheet {
+  width: 100%;
+  max-width: 640rpx;
+  max-height: 88vh;
+  overflow: auto;
+  /* 24px 圆角（750 设计 2:1 约 48rpx） */
+  border-radius: 48rpx;
+  box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  padding: 32rpx 24rpx 24rpx;
+  animation: calPop 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  box-sizing: border-box;
+}
+@keyframes calPop {
+  from {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.cal-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  gap: 12rpx;
+  padding: 0 0 0 0;
+}
+.cal-nav {
+  flex-shrink: 0;
+  min-width: 80rpx;
+  min-height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  transition: background 0.15s ease;
+}
+.cal-nav--down {
+  background: rgba(59, 130, 246, 0.18);
+}
+.cal-nav--off {
+  opacity: 0.3;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.04);
+}
+.cal-chev {
+  width: 20rpx;
+  height: 20rpx;
+  border-right: 4rpx solid #3b82f6;
+  border-bottom: 4rpx solid #3b82f6;
+  transform: rotate(-45deg);
+  margin: 0 auto;
+}
+.cal-chev--l {
+  transform: rotate(135deg);
+  margin: 0 auto;
+}
+.cal-picker {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+.cal-mtitle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 16rpx;
+}
+.cal-mtitle--down {
+  background: rgba(0, 0, 0, 0.04);
+}
+.cal-mtext {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.3rpx;
+  line-height: 1.2;
+}
+/* 下箭头（iOS 风格小三角 + 两竖） */
+.cal-tt-chev {
+  width: 0;
+  height: 0;
+  border-left: 8rpx solid transparent;
+  border-right: 8rpx solid transparent;
+  border-top: 10rpx solid #6b7280;
+  margin-top: 2rpx;
+  opacity: 0.6;
+}
+.cal-wkhead {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10rpx;
+  gap: 14rpx;
+  align-items: center;
+}
+.cal-wh {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #6b7280;
+}
+.cal-wh--sun {
+  color: #ef4444;
+}
+/* 7 等分列 + 约 6~8px(14rpx) 间距；与表头同 gap */
+.cal-wk {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 14rpx;
+  align-items: flex-start;
+  gap: 14rpx;
+}
+.cal-wk:last-child {
+  margin-bottom: 0;
+}
+/* 正方形：padding-bottom % 须写在内层，避免相对整行宽度被拉成细高条 */
+.cal-d {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  box-sizing: border-box;
+}
+.cal-d-bounds {
+  width: 100%;
+  height: 0;
+  margin: 0;
+  padding: 0 0 100%;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 20rpx;
+}
+/* 日格方框、底色、渐变：画在 bounds 上，与 wxml 中 cal-d--day > cal-d-bounds 对应 */
+.cal-d--day > .cal-d-bounds {
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.04);
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+.cal-d--day.cal-tint-none > .cal-d-bounds {
+  background: #f9fafb;
+}
+.cal-d--day.cal-d--has.cal-tint-push > .cal-d-bounds {
+  background: linear-gradient(145deg, #4a90e2, #3a7bc8);
+  border: none;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.12);
+}
+.cal-d--day.cal-d--has.cal-tint-pull > .cal-d-bounds {
+  background: linear-gradient(145deg, #7fb3ff, #5a9ae8);
+  border: none;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.12);
+}
+.cal-d--day.cal-d--has.cal-tint-leg > .cal-d-bounds {
+  background: linear-gradient(145deg, #5ae0c3, #3bc4a8);
+  border: none;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.12);
+}
+/* 内层：铺满正方形，内容整体垂直+水平居中 */
+.cal-d-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2rpx;
+  box-sizing: border-box;
+  gap: 2rpx;
+}
+.cal-d-bounds--empty {
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+/* 有训练时日期数字、周日色：在实色格上用浅色字 */
+.cal-d--day.cal-d--has .cal-dn--muted,
+.cal-d--day.cal-d--has .cal-dn--sun {
+  color: rgba(255, 255, 255, 0.96);
+}
+/* 有训练时：格内 推/拉/腿 仅白字，无背板圆圈 */
+.cal-d--day.cal-d--has .cal-tag--push,
+.cal-d--day.cal-d--has .cal-tag--pull,
+.cal-d--day.cal-d--has .cal-tag--leg,
+.cal-d--day.cal-d--has .cal-tag--rest,
+.cal-d--day.cal-d--has .cal-tag--undefined {
+  color: rgba(255, 255, 255, 0.95);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+/* 有训练时「选中」白底圆点 + 深字，避免与整格顺色 */
+.cal-d--day.cal-d--has .cal-dn--sel {
+  color: #1e3a5f;
+  background: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+  border: none;
+}
+.cal-dn {
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0;
+  text-align: center;
+  min-width: 40rpx;
+  padding: 0;
+  color: #9ca3af;
+  letter-spacing: -0.2rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+.cal-dn--muted {
+  color: #9ca3af;
+}
+/* 周末（日） */
+.cal-dn--sun {
+  color: #ef4444;
+}
+/* 当前选中 */
+.cal-dn--sel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48rpx;
+  min-height: 48rpx;
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 1;
+  padding: 0;
+  font-weight: 600;
+  color: #ffffff;
+  background: #3b82f6;
+  box-shadow: 0 2rpx 8rpx rgba(59, 130, 246, 0.4);
+  margin: 0;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  gap: 4rpx;
+  max-width: 100%;
+  min-height: 0;
+  flex: 0 0 auto;
+  line-height: 1.2;
+  margin: 0;
+}
+/* 推/拉/腿：仅字色，无圆角背板 */
+.cal-tag {
+  display: inline-block;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  max-width: 100%;
+  box-sizing: border-box;
+  letter-spacing: 0.2rpx;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+.cal-tag-tx {
+  display: block;
+  font-size: 16rpx;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+}
+.cal-tag--push {
+  color: #2563eb;
+}
+.cal-tag--pull {
+  color: #4b5e7a;
+}
+.cal-tag--leg {
+  color: #16a34a;
+}
+.cal-tag--rest,
+.cal-tag--undefined {
+  color: #6b7280;
+}
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx 20rpx;
+  margin: 20rpx 0 0;
+  padding: 0 4rpx;
+  opacity: 0.6;
+  box-sizing: border-box;
+}
+.cal-legal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  max-width: 100%;
+}
+.cal-legtxt {
+  font-size: 22rpx;
+  color: #6b7280;
+  font-weight: 400;
+}
+.cal-btrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24rpx;
+  padding: 0 4rpx 0;
+  box-sizing: border-box;
+}
+.cal-btn-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 480rpx;
+  min-height: 88rpx;
+  height: 88rpx;
+  line-height: 1.2;
+  margin: 0;
+  padding: 0 32rpx;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #111827;
+  background: #f3f4f6;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+/* 去掉 button 伪元素边框，避免与 flex 内文字错位叠加 */
+.cal-btn-close::after {
+  border: none;
 }
