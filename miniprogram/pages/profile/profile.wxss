@@ -1,0 +1,179 @@
+.pf-root {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24rpx 28rpx 48rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  padding-left: max(28rpx, env(safe-area-inset-left));
+  padding-right: max(28rpx, env(safe-area-inset-right));
+  background: linear-gradient(165deg, #e6eef8 0%, #eef2f7 38%, #f4f6f9 100%);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12rpx 48rpx rgba(15, 23, 42, 0.06), 0 2rpx 12rpx rgba(15, 23, 42, 0.04);
+  border-radius: 28rpx;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* —— 资料卡 —— */
+.pf-identity {
+  padding: 36rpx 32rpx 32rpx;
+  margin-bottom: 28rpx;
+}
+.pf-identity--guest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx 40rpx;
+}
+.pf-identity-hd {
+  margin-bottom: 28rpx;
+  text-align: center;
+}
+.pf-identity-t {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5rpx;
+}
+
+.pf-av-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-av-ring {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+.pf-av-btn {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6rpx rgba(255, 255, 255, 0.95), 0 12rpx 40rpx rgba(30, 64, 175, 0.12);
+}
+.pf-av-btn::after {
+  border: none;
+}
+.pf-av-btn--pressed {
+  opacity: 0.92;
+  transform: scale(0.98);
+}
+
+.pf-avatar {
+  width: 132rpx;
+  height: 132rpx;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #e2e8f0, #f1f5f9);
+  border: 2rpx solid rgba(255, 255, 255, 0.98);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56rpx;
+  box-sizing: border-box;
+}
+.pf-avatar--img {
+  display: block;
+  overflow: hidden;
+}
+
+.pf-av-hint {
+  display: block;
+  text-align: center;
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-bottom: 28rpx;
+  letter-spacing: 0.3rpx;
+}
+
+.pf-field {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 8rpx 4rpx 4rpx;
+  border-top: 1rpx solid rgba(15, 23, 42, 0.06);
+  padding-top: 28rpx;
+}
+.pf-field-lb {
+  flex-shrink: 0;
+  width: 72rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #475569;
+}
+.pf-field-inp {
+  flex: 1;
+  min-width: 0;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+  height: 76rpx;
+  line-height: 76rpx;
+  padding: 0 22rpx;
+  border-radius: 18rpx;
+  background: rgba(248, 250, 252, 0.95);
+  border: 1rpx solid rgba(15, 23, 42, 0.06);
+  box-sizing: border-box;
+}
+
+.pf-guest-tip {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #334155;
+  text-align: center;
+}
+.pf-guest-tip--muted {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+/* —— 列表 —— */
+.pf-sec {
+  overflow: hidden;
+}
+
+.pf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 34rpx 28rpx;
+  border-bottom: 1rpx solid rgba(15, 23, 42, 0.06);
+}
+
+.pf-row--last {
+  border-bottom: none;
+}
+
+.pf-row-t {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.pf-row-t--warn {
+  color: #dc2626;
+}
+
+.pf-row-ar {
+  font-size: 34rpx;
+  font-weight: 300;
+  color: #cbd5e1;
+  line-height: 1;
+}
+
+.pf-row--on {
+  opacity: 0.88;
+}

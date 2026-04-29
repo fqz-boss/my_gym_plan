@@ -38,6 +38,14 @@ function getDashGreeting() {
   return '晚上好';
 }
 
+/** 训练页问候：无真实昵称/脱敏「微信用户」时用「健身伙伴」 */
+function formatDashHello(nickName) {
+  const g = getDashGreeting();
+  const raw = nickName && String(nickName).trim();
+  const n = raw && raw !== '微信用户' ? raw : '健身伙伴';
+  return `${g}, ${n}`;
+}
+
 const todayLabel = { push: '推日', pull: '拉日', leg: '腿日', rest: '休息' };
 
 function statLabelsForDay(day) {
@@ -46,10 +54,11 @@ function statLabelsForDay(day) {
   };
 }
 
-function buildDashboardData(logs, currentDay) {
+function buildDashboardData(logs, currentDay, opts) {
   const logsArr = Array.isArray(logs) ? logs : [];
+  const nick = opts && opts.nickName != null ? opts.nickName : undefined;
   return {
-    dashHello: getDashGreeting(),
+    dashHello: formatDashHello(nick),
     ...statLabelsForDay(currentDay),
     statWeek: String(countLogsThisWeek(logsArr)),
     statTotal: String(logsArr.length),
@@ -61,6 +70,7 @@ module.exports = {
   weekBounds,
   countLogsThisWeek,
   getDashGreeting,
+  formatDashHello,
   buildDashboardData,
   statLabelsForDay,
 };

@@ -8,7 +8,7 @@ const POOL = {
   breakfast: [
     { id: 'bf_egg', name: '煮鸡蛋', portion: '1个', grams: 50, kcal: 72, protein: 6.3, carbs: 0.4, fat: 4.8, category: '蛋白', meal: 'breakfast', advice: '市售鸡蛋约 50g/个(去壳可食部)。全蛋约 72kcal。减脂期常见搭配：1 个全蛋 + 额外鸡蛋白。' },
     { id: 'bf_oat', name: '燕麦片（干）', portion: '50g', grams: 50, kcal: 190, protein: 6.5, carbs: 32, fat: 3.5, category: '主食', meal: 'breakfast' },
-    { id: 'bf_milk', name: '低脂牛奶', portion: '250ml', grams: 250, kcal: 105, protein: 8, carbs: 12, fat: 2.5, category: '乳制品', meal: 'breakfast' },
+    { id: 'bf_milk', name: '低脂牛奶', portion: '250ml', grams: 250, kcal: 105, protein: 8, carbs: 12, fat: 2.5, category: '乳制品', meal: 'breakfast', macroKey: 'carbs' },
     { id: 'bf_yogurt', name: '无糖希腊酸奶', portion: '150g', grams: 150, kcal: 120, protein: 15, carbs: 5, fat: 3, category: '乳制品', meal: 'breakfast' },
     { id: 'bf_bread', name: '全麦吐司', portion: '1片约30g', grams: 30, kcal: 75, protein: 3.5, carbs: 14, fat: 1, category: '主食', meal: 'breakfast' },
     { id: 'bf_corn', name: '玉米', portion: '1段约100g（熟）', grams: 100, kcal: 96, protein: 3.4, carbs: 21, fat: 1.2, category: '主食', meal: 'breakfast' },
@@ -73,6 +73,15 @@ function round1(x) {
   return Math.round(x * 10) / 10;
 }
 
+/** 比展示用：整数不保留小数，否则一位小数 */
+function fmtNum(x) {
+  const n = Number(x);
+  if (Number.isNaN(n)) return '—';
+  const r = round1(n);
+  if (Math.abs(r - Math.round(r)) < 0.05) return String(Math.round(r));
+  return r.toFixed(1);
+}
+
 /** 每份 1–50 份 */
 function normalizeQty(q) {
   const n = Math.round(Number(q));
@@ -84,20 +93,47 @@ function genericAdvice(p) {
   return `以下营养按标准份量「${p.portion}」及约重 ${p.grams != null ? p.grams + 'g' : '（见品名）'} 估算。食材大小、部位与烹饪用油不同会有偏差，建议以厨房秤与成分表为准。`;
 }
 
+/** 按分类/条目约定显示「蛋白 / 碳水 / 脂肪」哪一项；可在池子里用 macroKey 覆盖 */
+const AMOUNT_MACRO_LABELS = { protein: '蛋白', carbs: '碳水', fat: '脂肪' };
+const AMOUNT_MACRO_BY_CATEGORY = {
+  蛋白: 'protein',
+  主食: 'carbs',
+  水果: 'carbs',
+  蔬菜: 'carbs',
+  纤维: 'carbs',
+  优质脂肪: 'fat',
+  坚果: 'fat',
+  乳制品: 'protein',
+};
+
+function getAmountMacroKey(item) {
+  if (item.macroKey === 'protein' || item.macroKey === 'carbs' || item.macroKey === 'fat') {
+    return item.macroKey;
+  }
+  return AMOUNT_MACRO_BY_CATEGORY[item.category] || 'protein';
+}
+
+function totalAmountMacroGrams(item, qty, macroKey) {
+  const q = normalizeQty(qty);
+  if (macroKey === 'protein') return round1((item.protein || 0) * q);
+  if (macroKey === 'carbs') return round1((item.carbs || 0) * q);
+  return round1((item.fat || 0) * q);
+}
+
 /**
- * 展示用：几份、合计克重
+ * 副标题极短一行：总可食部克重 + 与分类对应的一项宏量（按池子 1 份标量×份数）
+ * 例：200g 碳水110g、100g 蛋白12.6g
  */
 function formatAmountLine(item, qty) {
   const q = normalizeQty(qty);
-  if (q <= 1) {
-    if (item.grams != null) return `${item.portion}（约 ${item.grams}g）`;
-    return item.portion;
+  const mKey = getAmountMacroKey(item);
+  const mLabel = AMOUNT_MACRO_LABELS[mKey] || '蛋白';
+  const mG = totalAmountMacroGrams(item, q, mKey);
+  if (item.grams == null) {
+    return `${mLabel}${fmtNum(mG)}g`;
   }
-  const g = item.grams != null ? Math.round(item.grams * q) : null;
-  if (g != null) {
-    return `×${q} 份 · 合计约 ${g}g（每份 ${item.portion}）`;
-  }
-  return `×${q} 份（每份 ${item.portion}）`;
+  const totalG = Math.round(item.grams * q);
+  return `${totalG}g ${mLabel}${fmtNum(mG)}g`;
 }
 
 /**
@@ -166,4 +202,5 @@ module.exports = {
   normalizeQty,
   getFoodDetailForId,
   formatAmountLine,
+  getAmountMacroKey,
 };

@@ -6,10 +6,12 @@ function corsHeaders(origin = '*') {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Content-Type': 'application/json; charset=utf-8',
   };
 }
+
+import { requireAuth, hasGymLogsUserIdColumn } from '../../_auth.js';
 
 /** PUT /api/logs/:id - 更新一条训练记录 */
 export async function onRequestPut(context) {
@@ -28,6 +30,21 @@ export async function onRequestPut(context) {
       headers: corsHeaders(origin),
     });
   }
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
+      headers: corsHeaders(origin),
+    });
+  }
+  const openid = auth.openid;
+  const hasCol = await hasGymLogsUserIdColumn(env.DB);
+  if (!hasCol) {
+    return new Response(JSON.stringify({ error: 'DB schema missing user_id. Please migrate gym_logs.' }), {
+      status: 503,
+      headers: corsHeaders(origin),
+    });
+  }
   try {
     const body = await request.json();
     const { date, timestamp, type, label, exercises } = body;
@@ -39,9 +56,9 @@ export async function onRequestPut(context) {
     }
     const exercisesStr = JSON.stringify(exercises);
     const { meta } = await env.DB.prepare(
-      'UPDATE gym_logs SET date = ?, timestamp = ?, type = ?, label = ?, exercises = ? WHERE id = ?'
+      'UPDATE gym_logs SET date = ?, timestamp = ?, type = ?, label = ?, exercises = ? WHERE id = ? AND user_id = ?'
     )
-      .bind(date, timestamp, type, label, exercisesStr, Number(id))
+      .bind(date, timestamp, type, label, exercisesStr, Number(id), openid)
       .run();
     if (meta.changes === 0) {
       return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -77,9 +94,24 @@ export async function onRequestDelete(context) {
       headers: corsHeaders(origin),
     });
   }
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
+      headers: corsHeaders(origin),
+    });
+  }
+  const openid = auth.openid;
+  const hasCol = await hasGymLogsUserIdColumn(env.DB);
+  if (!hasCol) {
+    return new Response(JSON.stringify({ error: 'DB schema missing user_id. Please migrate gym_logs.' }), {
+      status: 503,
+      headers: corsHeaders(origin),
+    });
+  }
   try {
-    const { meta } = await env.DB.prepare('DELETE FROM gym_logs WHERE id = ?')
-      .bind(Number(id))
+    const { meta } = await env.DB.prepare('DELETE FROM gym_logs WHERE id = ? AND user_id = ?')
+      .bind(Number(id), openid)
       .run();
     if (meta.changes === 0) {
       return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -109,7 +141,7 @@ export async function onRequestOptions() {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Max-Age': '86400',
       },
     });

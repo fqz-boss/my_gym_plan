@@ -560,25 +560,28 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 4rpx;
-  padding: 2rpx 2rpx 2rpx 6rpx;
-  background: rgba(255, 255, 255, 0.96);
+  gap: 0;
+  padding: 0;
+  background: #f1f5f9;
   border-radius: 8rpx;
-  box-shadow: 0 1rpx 6rpx rgba(0, 0, 0, 0.08);
-  border: 1rpx solid #e5e7eb;
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #e2e8f0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 .diet-foods__qtynum {
-  min-width: 22rpx;
+  min-width: 32rpx;
+  padding: 0 4rpx;
   text-align: center;
   font-size: 16rpx;
   font-weight: 800;
   color: #0f172a;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
+  background: #fff;
 }
-.diet-foods__qtyadd {
-  min-width: 32rpx;
+.diet-foods__qbtn {
+  min-width: 34rpx;
   height: 32rpx;
   line-height: 30rpx;
   text-align: center;
@@ -586,11 +589,18 @@
   font-weight: 700;
   color: #fff;
   background: #16a34a;
-  border-radius: 6rpx;
   box-sizing: border-box;
 }
-.diet-foods__qtyadd:active {
-  opacity: 0.88;
+.diet-foods__qbtn--minus {
+  color: #475569;
+  background: #e2e8f0;
+}
+.diet-foods__qbtn--plus {
+  color: #fff;
+  background: #16a34a;
+}
+.diet-foods__qbtn:active {
+  opacity: 0.82;
 }
 .diet-foods__card--press {
   transform: scale(0.97);
@@ -933,25 +943,28 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 3rpx;
-  padding: 1rpx 1rpx 1rpx 4rpx;
-  background: rgba(255, 255, 255, 0.97);
-  border-radius: 6rpx;
-  box-shadow: 0 1rpx 5rpx rgba(0, 0, 0, 0.08);
-  border: 1rpx solid #e5e7eb;
+  gap: 0;
+  padding: 0;
+  background: #f1f5f9;
+  border-radius: 5rpx;
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #e2e8f0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 .diet-fp__qtynum {
-  min-width: 20rpx;
+  min-width: 24rpx;
+  padding: 0 2rpx;
   text-align: center;
-  font-size: 11rpx;
+  font-size: 12rpx;
   font-weight: 800;
   color: #0f172a;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
+  background: #fff;
 }
-.diet-fp__qtyadd {
-  min-width: 24rpx;
+.diet-fp__qbtn {
+  min-width: 26rpx;
   height: 24rpx;
   line-height: 22rpx;
   text-align: center;
@@ -959,11 +972,18 @@
   font-weight: 700;
   color: #fff;
   background: var(--fp-primary);
-  border-radius: 4rpx;
   box-sizing: border-box;
 }
-.diet-fp__qtyadd:active {
-  opacity: 0.88;
+.diet-fp__qbtn:first-child {
+  color: #475569;
+  background: #e2e8f0;
+}
+.diet-fp__qbtn:last-child {
+  color: #fff;
+  background: var(--fp-primary);
+}
+.diet-fp__qbtn:active {
+  opacity: 0.82;
 }
 .diet-fp__card-main {
   flex: 1;
@@ -1075,9 +1095,8 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
+  flex-direction: row;
+  align-items: center;
 }
 .diet-fp__tag-tx {
   font-size: 20rpx;
@@ -1087,13 +1106,6 @@
   word-break: break-all;
   white-space: normal;
   max-width: 100%;
-}
-.diet-fp__tag-qty {
-  font-size: 16rpx;
-  color: #64748b;
-  line-height: 1.2;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
 }
 .diet-fp__tag-minus,
 .diet-fp__tag-plus {

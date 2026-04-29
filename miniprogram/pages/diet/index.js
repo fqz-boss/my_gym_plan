@@ -14,6 +14,7 @@ const { recomputeDietFromMeals } = require('../../utils/dietNutrition.js');
 const { loadDietForDate, saveDietToStorage } = require('../../utils/dietStorage.js');
 const { foodIconForDietFood, foodIconForPoolItem } = require('../../utils/foodIcon.js');
 const { tryComputeFromBody, GOALS } = require('../../utils/dietTargets.js');
+const { isLoggedIn, promptLogin } = require('../../utils/auth.js');
 
 const FP_TITLES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
 const KCAL_DEFAULT = 2000;
@@ -74,6 +75,20 @@ function ensureMealFoodIcons(meals) {
 }
 
 Page({
+  openAuthOverlay(opts) {
+    const o = opts || {};
+    this.setData({
+      authOverlayVisible: true,
+      authOverlayHint: o.content != null && o.content !== '' ? String(o.content) : '',
+    });
+  },
+  onAuthOverlayClose() {
+    this.setData({ authOverlayVisible: false, authOverlayHint: '' });
+  },
+  onAuthOverlaySuccess() {
+    this.setData({ authOverlayVisible: false, authOverlayHint: '' });
+  },
+
   noop() {},
   data: {
     currentDate: '',
@@ -122,6 +137,8 @@ Page({
     mealDragActive: false,
     mealDragGhost: null,
     mealDeleteZoneHighlight: false,
+    authOverlayVisible: false,
+    authOverlayHint: '',
   },
 
   onLoad() {
@@ -220,6 +237,10 @@ Page({
   },
 
   onOpenDietSettings() {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '编辑身体与营养信息前需先完成微信授权' });
+      return;
+    }
     wx.navigateTo({ url: '/pages/diet-settings/diet-settings' });
   },
 
@@ -255,11 +276,15 @@ Page({
     this.applyDate(dateKey);
   },
 
-  onMealFoodQtyInc(e) {
-    const d = (e && e.currentTarget && e.currentTarget.dataset) || {};
-    const mi = parseInt(String(d.mi != null && d.mi !== '' ? d.mi : '0'), 10);
-    const fi = parseInt(String(d.fi != null && d.fi !== '' ? d.fi : '0'), 10);
-    if (Number.isNaN(mi) || Number.isNaN(fi)) return;
+  _setMealFoodQtyTo(mi, fi, n) {
+    if (n < 1) {
+      this._removeMealFood(mi, fi);
+      return;
+    }
+    if (n > 50) {
+      wx.showToast({ title: '单种最多 50 份', icon: 'none' });
+      return;
+    }
     const dateKey = this.data.currentDate;
     if (!dateKey) return;
     const bundle = loadDietForDate(dateKey);
@@ -272,13 +297,6 @@ Page({
     if (!f || !f.id) return;
     const p = findFoodById(f.id);
     if (!p) return;
-    const cur0 = f.qty != null && f.qty !== '' ? Number(f.qty) : 1;
-    const cur = Number.isNaN(cur0) || cur0 < 1 ? 1 : Math.floor(cur0);
-    const n = cur + 1;
-    if (n > 50) {
-      wx.showToast({ title: '单种最多 50 份', icon: 'none' });
-      return;
-    }
     const nextRow = toPlannedFood(p, n);
     let icon = f.icon;
     try {
@@ -292,6 +310,37 @@ Page({
     const { meals: m2, nutrition } = recomputeDietFromMeals(meals);
     saveDietToStorage(dateKey, { ...bundle, meals: m2, nutrition });
     this.applyDate(dateKey);
+  },
+
+  _readMealFoodQtyFromEvent(e) {
+    const d = (e && e.currentTarget && e.currentTarget.dataset) || {};
+    const mi = parseInt(String(d.mi != null && d.mi !== '' ? d.mi : '0'), 10);
+    const fi = parseInt(String(d.fi != null && d.fi !== '' ? d.fi : '0'), 10);
+    if (Number.isNaN(mi) || Number.isNaN(fi)) return null;
+    const dateKey = this.data.currentDate;
+    if (!dateKey) return null;
+    const bundle = loadDietForDate(dateKey);
+    const meals0 = bundle.meals || [];
+    if (mi < 0 || mi >= meals0.length) return null;
+    const foods0 = meals0[mi].foods || [];
+    if (fi < 0 || fi >= foods0.length) return null;
+    const f = foods0[fi];
+    if (!f || !f.id) return null;
+    const cur0 = f.qty != null && f.qty !== '' ? Number(f.qty) : 1;
+    const cur = Number.isNaN(cur0) || cur0 < 1 ? 1 : Math.floor(cur0);
+    return { mi, fi, cur };
+  },
+
+  onMealFoodQtyInc(e) {
+    const a = this._readMealFoodQtyFromEvent(e);
+    if (!a) return;
+    this._setMealFoodQtyTo(a.mi, a.fi, a.cur + 1);
+  },
+
+  onMealFoodQtyDec(e) {
+    const a = this._readMealFoodQtyFromEvent(e);
+    if (!a) return;
+    this._setMealFoodQtyTo(a.mi, a.fi, a.cur - 1);
   },
 
   onMealClick(e) {

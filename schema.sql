@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS gym_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT,
   date TEXT NOT NULL,
   timestamp INTEGER NOT NULL,
   type TEXT NOT NULL,
@@ -9,3 +10,4 @@ CREATE TABLE IF NOT EXISTS gym_logs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_gym_logs_timestamp ON gym_logs(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_gym_logs_user_time ON gym_logs(user_id, timestamp DESC);

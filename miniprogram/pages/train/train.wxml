@@ -1,8 +1,17 @@
 <view class="train-root">
   <view class="dash-hd" wx:if="{{!isRest}}">
     <view class="dash-row">
-      <view class="dash-av" aria-hidden="true">
-        <view class="dash-av-inner">
+      <button wx:if="{{canChangeAvatar}}" class="dash-av dash-av--btn" open-type="chooseAvatar" bindchooseavatar="onTrainChooseAvatar" hover-class="dash-av--pressed" aria-label="更换头像">
+        <image wx:if="{{userAvatarUrl}}" class="dash-av-img" src="{{userAvatarUrl}}" mode="aspectFill" />
+        <view wx:else class="dash-av-inner">
+          <view class="dash-dumb r1" />
+          <view class="dash-dumb r2" />
+          <view class="dash-dumb bar" />
+        </view>
+      </button>
+      <view wx:else class="dash-av dash-av--guest" bindtap="onTrainAvatarTapWhenGuest" hover-class="dash-av--pressed" aria-hidden="true">
+        <image wx:if="{{userAvatarUrl}}" class="dash-av-img" src="{{userAvatarUrl}}" mode="aspectFill" />
+        <view wx:else class="dash-av-inner">
           <view class="dash-dumb r1" />
           <view class="dash-dumb r2" />
           <view class="dash-dumb bar" />
@@ -27,17 +36,21 @@
         <text class="stat-lb">总计</text>
       </view>
     </view>
-    <view class="pill-row">
-      <text class="pill">PUSH</text>
-      <text class="pill">PULL</text>
-      <text class="pill">LEGS</text>
-    </view>
   </view>
 
   <view class="dash-hd rest-dash" wx:if="{{isRest}}">
     <view class="dash-row">
-      <view class="dash-av">
-        <view class="dash-av-inner">
+      <button wx:if="{{canChangeAvatar}}" class="dash-av dash-av--btn" open-type="chooseAvatar" bindchooseavatar="onTrainChooseAvatar" hover-class="dash-av--pressed" aria-label="更换头像">
+        <image wx:if="{{userAvatarUrl}}" class="dash-av-img" src="{{userAvatarUrl}}" mode="aspectFill" />
+        <view wx:else class="dash-av-inner">
+          <view class="dash-dumb r1" />
+          <view class="dash-dumb r2" />
+          <view class="dash-dumb bar" />
+        </view>
+      </button>
+      <view wx:else class="dash-av dash-av--guest" bindtap="onTrainAvatarTapWhenGuest" hover-class="dash-av--pressed" aria-hidden="true">
+        <image wx:if="{{userAvatarUrl}}" class="dash-av-img" src="{{userAvatarUrl}}" mode="aspectFill" />
+        <view wx:else class="dash-av-inner">
           <view class="dash-dumb r1" />
           <view class="dash-dumb r2" />
           <view class="dash-dumb bar" />
@@ -71,6 +84,11 @@
     <view class="d-btn {{currentDay==='pull' ? 'ac-pull' : ''}}" data-day="pull" bindtap="onSwitchDay">拉日</view>
     <view class="d-btn {{currentDay==='leg' ? 'ac-leg' : ''}}" data-day="leg" bindtap="onSwitchDay">腿日</view>
     <view class="d-btn {{currentDay==='rest' ? 'ac-rest' : ''}}" data-day="rest" bindtap="onSwitchDay">休息</view>
+  </view>
+
+  <view class="train-plan-link glass" hover-class="train-plan-link--on" bindtap="onOpenPlan">
+    <text class="train-plan-link-tx">查看完整计划</text>
+    <text class="train-plan-link-ico">›</text>
   </view>
 
   <block wx:if="{{isRest}}">
@@ -263,3 +281,9 @@
     </view>
   </view>
 </view>
+<auth-overlay
+  visible="{{authOverlayVisible}}"
+  hint="{{authOverlayHint}}"
+  bind:close="onAuthOverlayClose"
+  bind:success="onAuthOverlaySuccess"
+/>

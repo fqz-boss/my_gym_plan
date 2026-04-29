@@ -1,0 +1,20 @@
+<view class="auth-ol" wx:if="{{visible}}" catchtouchmove="noop">
+  <view class="auth-ol-mask" bindtap="onClose" />
+  <view class="auth-ol-inner" catchtap="noop">
+    <view class="auth-ol-card glass">
+      <view class="auth-ol-logo" aria-hidden="true">💪</view>
+      <view class="auth-ol-title">微信授权</view>
+      <view class="auth-ol-sub" wx:if="{{hint}}">{{hint}}</view>
+      <view class="auth-ol-sub" wx:else>使用云端同步等功能前需完成一次授权</view>
+      <button
+        class="auth-ol-btn"
+        type="primary"
+        loading="{{btnLoading}}"
+        disabled="{{btnLoading}}"
+        bindtap="onWeixinLogin"
+      >微信授权登录</button>
+      <view class="auth-ol-msg" wx:if="{{hMsg}}">{{hMsg}}</view>
+      <view class="auth-ol-close" bindtap="onClose">关闭</view>
+    </view>
+  </view>
+</view>

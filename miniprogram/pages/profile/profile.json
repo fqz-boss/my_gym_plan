@@ -2,5 +2,5 @@
   "usingComponents": {
     "auth-overlay": "/components/auth-overlay/auth-overlay"
   },
-  "navigationBarTitleText": "PPL"
+  "navigationBarTitleText": "个人信息"
 }

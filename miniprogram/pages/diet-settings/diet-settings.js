@@ -1,4 +1,5 @@
 const { loadDietCalcProfile, saveDietCalcProfile } = require('../../utils/dietCalcProfile.js');
+const { isLoggedIn, promptLogin } = require('../../utils/auth.js');
 
 const ACTIVITY_LIST = [
   { key: 'sedentary', label: '久坐 (办公室为主)' },
@@ -51,6 +52,10 @@ Page({
   },
 
   onSave() {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '保存身体与营养信息前需先完成微信授权' });
+      return;
+    }
     const { height, age, gender, activityIndex, activityList } = this.data;
     const act = activityList[activityIndex] && activityList[activityIndex].key;
     saveDietCalcProfile({ height, age, gender, activity: act || 'moderate' });

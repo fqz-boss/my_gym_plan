@@ -4,6 +4,8 @@
     "pages/diet/index",
     "pages/history/history",
     "pages/plan/plan",
+    "pages/profile/profile",
+    "pages/auth/auth",
     "pages/log-edit/log-edit",
     "pages/diet-settings/diet-settings"
   ],
@@ -20,7 +22,7 @@
     "list": [
       { "pagePath": "pages/train/train", "text": "训练" },
       { "pagePath": "pages/diet/index", "text": "饮食" },
-      { "pagePath": "pages/plan/plan", "text": "计划" }
+      { "pagePath": "pages/profile/profile", "text": "我的" }
     ]
   },
   "sitemapLocation": "sitemap.json"

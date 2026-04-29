@@ -1,5 +1,6 @@
 const { getLogs, deleteLogById } = require('../../utils/api.js');
 const { exerciseIconPath } = require('../../utils/exerciseIcons.js');
+const { isLoggedIn, promptLogin } = require('../../utils/auth.js');
 
 Page({
   data: {
@@ -33,10 +34,18 @@ Page({
     this.setData({ [k]: !this.data.logs[idx]._open });
   },
   onEdit(e) {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '编辑训练记录前需先完成微信授权' });
+      return;
+    }
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: `/pages/log-edit/log-edit?id=${id}` });
   },
   onDelete(e) {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '删除训练记录前需先完成微信授权' });
+      return;
+    }
     const id = e.currentTarget.dataset.id;
     wx.showModal({
       title: '确认',

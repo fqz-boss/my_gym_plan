@@ -1,5 +1,6 @@
 const { getLogs, updateLog } = require('../../utils/api.js');
 const { exerciseIconPath } = require('../../utils/exerciseIcons.js');
+const { isLoggedIn, promptLogin } = require('../../utils/auth.js');
 
 const TYPE_LABELS = ['推日', '拉日', '腿日'];
 const TYPES = ['push', 'pull', 'leg'];
@@ -87,6 +88,10 @@ Page({
     this.setData({ [k]: !this.data.exercises[eix].sets[six].done });
   },
   onSave() {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '保存训练记录前需先完成微信授权' });
+      return;
+    }
     const { id, date, typeIndex, timestamp, exercises } = this.data;
     if (!String(date).trim()) {
       wx.showToast({ title: '请填写日期', icon: 'none' });

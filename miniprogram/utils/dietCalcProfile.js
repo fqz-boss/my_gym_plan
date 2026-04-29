@@ -1,6 +1,8 @@
 /**
  * 全局「精算」身体档案：身高/年龄/性别/活动量（与按日 bodyProfile 分离）
  */
+const { scopedKey } = require('./userScope.js');
+
 const STORAGE_KEY = 'diet_v2_user_profile';
 
 function getDefaultProfile() {
@@ -14,7 +16,7 @@ function getDefaultProfile() {
 
 function loadDietCalcProfile() {
   try {
-    const raw = wx.getStorageSync(STORAGE_KEY);
+    const raw = wx.getStorageSync(scopedKey(STORAGE_KEY));
     if (!raw || typeof raw !== 'object') return getDefaultProfile();
     return {
       ...getDefaultProfile(),
@@ -36,7 +38,7 @@ function saveDietCalcProfile(p) {
     activity: (p && p.activity) || 'moderate',
   };
   try {
-    wx.setStorageSync(STORAGE_KEY, next);
+    wx.setStorageSync(scopedKey(STORAGE_KEY), next);
   } catch (e) {
     // ignore
   }

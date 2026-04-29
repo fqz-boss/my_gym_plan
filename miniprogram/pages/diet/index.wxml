@@ -215,9 +215,15 @@
                 <text class="diet-foods__kline" wx:if="{{fd.kcal != null && fd.kcal !== ''}}">{{fd.kcal}} kcal</text>
               </view>
               <view class="diet-foods__qtyrow">
+                <view
+                  class="diet-foods__qbtn diet-foods__qbtn--minus"
+                  data-mi="{{mi}}"
+                  data-fi="{{fi}}"
+                  bindtap="onMealFoodQtyDec"
+                >−</view>
                 <text class="diet-foods__qtynum" selectable="{{false}}">{{fd.qty > 0 ? fd.qty : 1}}</text>
                 <view
-                  class="diet-foods__qtyadd"
+                  class="diet-foods__qbtn diet-foods__qbtn--plus"
                   data-mi="{{mi}}"
                   data-fi="{{fi}}"
                   bindtap="onMealFoodQtyInc"
@@ -320,8 +326,9 @@
                     <text class="diet-fp__card-k" wx:else>{{item.kcal}} kcal/份</text>
                   </view>
                   <view class="diet-fp__qtyrow" wx:if="{{item._selQty > 0}}">
+                    <view class="diet-fp__qbtn" data-id="{{item.id}}" bindtap="onFpTagDec">−</view>
                     <text class="diet-fp__qtynum" selectable="{{false}}">{{item._selQty}}</text>
-                    <view class="diet-fp__qtyadd" data-id="{{item.id}}" bindtap="onFpTagInc">+</view>
+                    <view class="diet-fp__qbtn" data-id="{{item.id}}" bindtap="onFpTagInc">+</view>
                   </view>
                 </view>
               </view>
@@ -347,7 +354,6 @@
                 >
                 <view class="diet-fp__tag-txt">
                   <text class="diet-fp__tag-tx">{{item.name}} · {{item.kcal}} kcal</text>
-                  <text class="diet-fp__tag-qty">×{{item.qty}} 份</text>
                 </view>
                 <text class="diet-fp__tag-plus" data-id="{{item.id}}" catchtap="onFpTagInc"
                   >+</text
@@ -433,4 +439,11 @@
       </scroll-view>
     </view>
   </view>
+
+  <auth-overlay
+    visible="{{authOverlayVisible}}"
+    hint="{{authOverlayHint}}"
+    bind:close="onAuthOverlayClose"
+    bind:success="onAuthOverlaySuccess"
+  />
 </view>

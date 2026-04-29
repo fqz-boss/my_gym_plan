@@ -1,0 +1,18 @@
+<view class="au-root">
+  <view class="au-card glass">
+    <view class="au-logo" aria-hidden="true">💪</view>
+    <view class="au-title">PPL 训练</view>
+    <view class="au-sub">使用训练、饮食与云同步前，需完成一次微信授权登录</view>
+    <view class="au-agree">轻触即表示同意使用微信账号标识用于本应用内的训练数据关联（详见隐私政策，可在正式上架时补充完整文案）。</view>
+
+    <button
+      class="au-btn"
+      type="primary"
+      loading="{{btnLoading}}"
+      disabled="{{btnLoading}}"
+      bindtap="onWeixinLogin"
+    >微信授权登录</button>
+
+    <view class="au-hint" wx:if="{{hMsg}}">{{hMsg}}</view>
+  </view>
+</view>

@@ -2,6 +2,7 @@ const { getPlan, savePlan } = require('../../utils/storage.js');
 const { addIconsToPlan } = require('../../utils/exerciseIcons.js');
 const { PLAN_SECTIONS } = require('../../utils/defaults.js');
 const { movePlanExercise } = require('../../utils/planReorder.js');
+const { isLoggedIn, promptLogin } = require('../../utils/auth.js');
 
 function hitTestToIndex(rects, y) {
   if (!rects || !rects.length) return 0;
@@ -16,12 +17,12 @@ function hitTestToIndex(rects, y) {
 
 Page({
   data: {
-    editSecOpen: true,
+    editSecOpen: false,
     plan: { push: { exercises: [] }, pull: { exercises: [] }, leg: { exercises: [] } },
     days: [
-      { key: 'push', label: '推日', open: true },
-      { key: 'pull', label: '拉日', open: true },
-      { key: 'leg', label: '腿日', open: true },
+      { key: 'push', label: '推日', open: false },
+      { key: 'pull', label: '拉日', open: false },
+      { key: 'leg', label: '腿日', open: false },
     ],
     sections: [],
     showEdit: false,
@@ -39,6 +40,11 @@ Page({
   },
   onDragMove() {},
   onDragEnd(e) {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '调整训练动作顺序前需先完成微信授权' });
+      this._drag = null;
+      return;
+    }
     if (!this._drag) return;
     const { day, from } = this._drag;
     this._drag = null;
@@ -89,6 +95,10 @@ Page({
     this.setData({ [k]: !this.data.days[idx].open });
   },
   onOpenEdit(e) {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '编辑训练计划前需先完成微信授权' });
+      return;
+    }
     const day = e.currentTarget.dataset.day;
     const i = e.currentTarget.dataset.i;
     const p = getPlan();
@@ -119,6 +129,10 @@ Page({
     this.setData({ eTips: e.detail.value });
   },
   onSaveEx() {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '编辑训练计划前需先完成微信授权' });
+      return;
+    }
     const p = getPlan();
     const { editDay, editI, eName, eSets, eReps, eTips } = this.data;
     p[editDay].exercises[editI] = {
@@ -132,6 +146,10 @@ Page({
     wx.showToast({ title: '已保存' });
   },
   onDeleteEx(e) {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '编辑训练计划前需先完成微信授权' });
+      return;
+    }
     const day = e.currentTarget.dataset.day;
     const i = e.currentTarget.dataset.i;
     wx.showModal({
@@ -148,6 +166,10 @@ Page({
     });
   },
   onAddEx(e) {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '编辑训练计划前需先完成微信授权' });
+      return;
+    }
     const day = e.currentTarget.dataset.day;
     const p = getPlan();
     p[day].exercises.push({ name: '新动作', sets: 4, reps: '8-12RM', tips: '' });

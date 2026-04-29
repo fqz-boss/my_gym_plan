@@ -5,13 +5,23 @@ const DEFAULT_TIMEOUT_MS = 30000;
 const GET_RETRIES = 2;
 const RETRY_DELAY_MS = 450;
 
+function buildHeaders() {
+  const h = { 'Content-Type': 'application/json' };
+  try {
+    const { getAuthToken } = require('./auth.js');
+    const t = getAuthToken();
+    if (t) h.Authorization = 'Bearer ' + t;
+  } catch (e) {}
+  return h;
+}
+
 function request({ url, method, data, timeout }) {
   return new Promise((resolve, reject) => {
     wx.request({
       url: apiBase + url,
       method: method || 'GET',
       data: data || undefined,
-      header: { 'Content-Type': 'application/json' },
+      header: buildHeaders(),
       timeout: timeout != null ? timeout : DEFAULT_TIMEOUT_MS,
       success(res) {
         const { statusCode, data: body } = res;

@@ -1,5 +1,6 @@
 const { getPoolByMeal, toPlannedFood, findFoodById } = require('./dietFoodPool.js');
 const { recomputeDietFromMeals } = require('./dietNutrition.js');
+const { scopePrefix } = require('./userScope.js');
 
 const STORAGE_PREFIX = 'diet_';
 
@@ -46,7 +47,7 @@ function getDefaultDiet() {
  * @param {string} dateKey YYYY-MM-DD
  */
 function loadDietForDate(dateKey) {
-  const storageKey = `${STORAGE_PREFIX}${dateKey}`;
+  const storageKey = `${scopePrefix()}${STORAGE_PREFIX}${dateKey}`;
   try {
     const raw = wx.getStorageSync(storageKey);
     if (raw) {
@@ -81,7 +82,7 @@ function remergeNutritionIfNeeded(v) {
 }
 
 function saveDietToStorage(dateKey, payload) {
-  const storageKey = `${STORAGE_PREFIX}${dateKey}`;
+  const storageKey = `${scopePrefix()}${STORAGE_PREFIX}${dateKey}`;
   try {
     wx.setStorageSync(storageKey, payload);
   } catch (e) {}

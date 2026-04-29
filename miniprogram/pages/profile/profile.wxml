@@ -1,0 +1,63 @@
+<view class="pf-root">
+  <!-- 已登录：资料卡 -->
+  <view wx:if="{{showLoggedIn}}" class="pf-identity glass">
+    <view class="pf-identity-hd">
+      <text class="pf-identity-t">展示资料</text>
+    </view>
+    <view class="pf-av-ring">
+      <button class="pf-av-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" hover-class="pf-av-btn--pressed">
+        <image wx:if="{{userAvatarUrl}}" class="pf-avatar pf-avatar--img" src="{{userAvatarUrl}}" mode="aspectFill" />
+        <view wx:else class="pf-avatar" aria-hidden="true">💪</view>
+      </button>
+    </view>
+    <text class="pf-av-hint">点击头像 · 从相册选用或拍照</text>
+    <view class="pf-field">
+      <text class="pf-field-lb">昵称</text>
+      <input
+        class="pf-field-inp"
+        type="nickname"
+        value="{{userNickName}}"
+        placeholder="填写或选用键盘上的微信昵称"
+        placeholder-style="color:#94a3b8;font-weight:500;"
+        cursor-spacing="16"
+        bindblur="onProfileNickConfirm"
+      />
+    </view>
+  </view>
+
+  <!-- 未登录 -->
+  <view wx:else class="pf-identity glass pf-identity--guest">
+    <view class="pf-av-wrap">
+      <image wx:if="{{userAvatarUrl}}" class="pf-avatar pf-avatar--img" src="{{userAvatarUrl}}" mode="aspectFill" />
+      <view wx:else class="pf-avatar" aria-hidden="true">💪</view>
+    </view>
+    <text class="pf-guest-tip" wx:if="{{userNickName}}">{{userNickName}}</text>
+    <text class="pf-guest-tip pf-guest-tip--muted" wx:else>登录后可设置头像与昵称</text>
+  </view>
+
+  <view class="pf-sec glass">
+    <view class="pf-row" wx:if="{{!showLoggedIn}}" bindtap="onGoLogin" hover-class="pf-row--on">
+      <text class="pf-row-t">微信授权登录</text>
+      <text class="pf-row-ar">›</text>
+    </view>
+    <view class="pf-row" bindtap="onOpenPlan" hover-class="pf-row--on">
+      <text class="pf-row-t">训练计划</text>
+      <text class="pf-row-ar">›</text>
+    </view>
+    <view class="pf-row {{!showLoggedIn ? 'pf-row--last' : ''}}" bindtap="onDietSettings" hover-class="pf-row--on">
+      <text class="pf-row-t">身体与营养设置</text>
+      <text class="pf-row-ar">›</text>
+    </view>
+    <view class="pf-row pf-row--last" wx:if="{{showLoggedIn}}" bindtap="onLogout" hover-class="pf-row--on">
+      <text class="pf-row-t pf-row-t--warn">退出登录</text>
+      <text class="pf-row-ar">›</text>
+    </view>
+  </view>
+
+  <auth-overlay
+    visible="{{authOverlayVisible}}"
+    hint="{{authOverlayHint}}"
+    bind:close="onAuthOverlayClose"
+    bind:success="onAuthOverlaySuccess"
+  />
+</view>

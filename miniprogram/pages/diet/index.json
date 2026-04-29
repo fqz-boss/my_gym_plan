@@ -2,5 +2,7 @@
   "navigationBarTitleText": "饮食规划",
   "navigationBarBackgroundColor": "#F7F8FA",
   "backgroundColor": "#F7F8FA",
-  "usingComponents": {}
+  "usingComponents": {
+    "auth-overlay": "/components/auth-overlay/auth-overlay"
+  }
 }

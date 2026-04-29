@@ -2,13 +2,16 @@ const { getPlan, savePlan, getDraft, saveDraft, clearDraft, ensurePlanInit } = r
 const { exerciseIconPath } = require('../../utils/exerciseIcons.js');
 const { getToday, formatTitleDate } = require('../../utils/helpers.js');
 const { getLogs, saveLog } = require('../../utils/api.js');
-const { buildDashboardData, getDashGreeting } = require('../../utils/stats.js');
+const { buildDashboardData, formatDashHello } = require('../../utils/stats.js');
+const userProfile = require('../../utils/userProfile.js');
+const { setAvatarFromChooseFile } = userProfile;
 const {
   extractLastSetsByExerciseName,
   buildDefaultMatrixFromHistory,
   applyPrefillToExerciseRows,
 } = require('../../utils/historyPrefill.js');
 const { buildLogMapByDay, buildMonthWeeks, dateKeyFromParts } = require('../../utils/calendarUtil.js');
+const { isLoggedIn, promptLogin } = require('../../utils/auth.js');
 
 function isKeyInMonthCell(k, y, m) {
   const p = String(k || '').split('-');
@@ -78,14 +81,46 @@ Page({
     calSelectedKey: '',
     calPickerValue: '',
     calPickerEnd: '',
+    authOverlayVisible: false,
+    authOverlayHint: '',
+    userAvatarUrl: '',
+    canChangeAvatar: false,
   },
   draftTimer: null,
   _applyToken: 0,
   _calLogs: null,
   _calSelUser: false,
 
+  _profileOpts() {
+    return { nickName: userProfile.get().nickName };
+  },
+
+  _syncUserHeader() {
+    const p = userProfile.get();
+    this.setData({
+      userAvatarUrl: p.avatarUrl || '',
+      dashHello: formatDashHello(p.nickName),
+      canChangeAvatar: isLoggedIn(),
+    });
+  },
+
+  onTrainChooseAvatar(e) {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '更换头像前请先完成微信授权' });
+      return;
+    }
+    const url = e.detail && e.detail.avatarUrl;
+    if (!url) return;
+    setAvatarFromChooseFile(url, () => this._syncUserHeader());
+  },
+
+  onTrainAvatarTapWhenGuest() {
+    promptLogin({ content: '登录后可点头像，使用与「我的」相同的微信选头像' });
+  },
+
   onLoad() {
     ensurePlanInit();
+    this._syncUserHeader();
     const n = new Date();
     this.setData({
       trainDate: formatTitleDate(),
@@ -95,6 +130,7 @@ Page({
   },
 
   onShow() {
+    this._syncUserHeader();
     const n = new Date();
     this.setData({
       calPickerEnd: dateKeyFromParts(n.getFullYear(), n.getMonth() + 1, n.getDate()),
@@ -126,10 +162,25 @@ Page({
 
   noop() {},
 
+  openAuthOverlay(opts) {
+    const o = opts || {};
+    this.setData({
+      authOverlayVisible: true,
+      authOverlayHint: o.content != null && o.content !== '' ? String(o.content) : '',
+    });
+  },
+  onAuthOverlayClose() {
+    this.setData({ authOverlayVisible: false, authOverlayHint: '' });
+  },
+  onAuthOverlaySuccess() {
+    this.setData({ authOverlayVisible: false, authOverlayHint: '' });
+    this._syncUserHeader();
+  },
+
   loadStatsForDay(day) {
     getLogs({ lite: true })
       .then((logs) => {
-        this.setData(buildDashboardData(logs, day));
+        this.setData(buildDashboardData(logs, day, this._profileOpts()));
       });
   },
 
@@ -148,7 +199,7 @@ Page({
         btnCls: 'push',
         cardCls: 'rest',
         exerciseRows: [],
-        dashHello: getDashGreeting(),
+        dashHello: formatDashHello(userProfile.get().nickName),
         statToday: '休息',
       });
       this.loadStatsForDay('rest');
@@ -166,8 +217,7 @@ Page({
       btnCls: plan.cls,
       cardCls: plan.cls,
       exerciseRows,
-      dashHello: getDashGreeting(),
-      ...buildDashboardData([], day),
+      ...buildDashboardData([], day, this._profileOpts()),
     });
 
     getLogs()
@@ -180,7 +230,7 @@ Page({
           const filled = applyPrefillToExerciseRows(rows, matrix);
           this.setData({
             exerciseRows: rows,
-            ...buildDashboardData(logs, day),
+            ...buildDashboardData(logs, day, this._profileOpts()),
           });
           if (filled > 0 && !getDraft() && !hasDraft && !silentPrefillToast) {
             wx.showToast({
@@ -196,6 +246,14 @@ Page({
   onSwitchDay(e) {
     const d = e.currentTarget.dataset.day;
     this.applyDay(d, { silentPrefillToast: false });
+  },
+
+  onOpenPlan() {
+    if (!isLoggedIn()) {
+      promptLogin({ content: '查看与编辑训练计划前需先完成微信授权' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/plan/plan' });
   },
 
   onToggleTips(e) {
@@ -401,6 +459,10 @@ Page({
     if (cell && cell.hasLog && cell.logs && cell.logs.length) {
       const go = (id) => {
         if (id == null) return;
+        if (!isLoggedIn()) {
+          promptLogin({ content: '编辑历史训练记录前需先完成微信授权' });
+          return;
+        }
         wx.navigateTo({ url: `/pages/log-edit/log-edit?id=${id}` });
       };
       if (cell.logs.length === 1) {
@@ -440,6 +502,10 @@ Page({
   onConfirmFinish() {
     this.setData({ showFinish: false });
     if (this.data.isRest) return;
+    if (!isLoggedIn()) {
+      promptLogin({ content: '保存训练记录到云端前需先完成微信授权' });
+      return;
+    }
     const plan = getPlan()[this.data.currentDay];
     if (!plan) return;
     const { exerciseRows, currentDay } = this.data;
